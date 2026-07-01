@@ -1,9 +1,8 @@
-import { getSupabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import type { LaunchpadInvestor, LaunchpadRound, LaunchpadStartup } from "@/types/launchpad";
 
 export async function listLaunchpadRounds() {
-  const supabase = getSupabase();
-  if (!supabase) return [];
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("funding_rounds")
@@ -24,8 +23,7 @@ export async function listLaunchpadRounds() {
 }
 
 export async function getLaunchpadRound(roundId: string) {
-  const supabase = getSupabase();
-  if (!supabase) return null;
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("funding_rounds")
@@ -48,13 +46,7 @@ export async function getLaunchpadRound(roundId: string) {
 }
 
 export async function listLaunchpadCreateOptions() {
-  const supabase = getSupabase();
-  if (!supabase) {
-    return {
-      startups: [] as LaunchpadStartup[],
-      investors: [] as LaunchpadInvestor[],
-    };
-  }
+  const supabase = await createClient();
 
   const [startupsResult, investorsResult] = await Promise.all([
     supabase
@@ -78,4 +70,32 @@ export async function listLaunchpadCreateOptions() {
     startups: (startupsResult.data || []) as LaunchpadStartup[],
     investors: (investorsResult.data || []) as LaunchpadInvestor[],
   };
+}
+
+export async function listOnChainTransactions(roundId?: string) {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("on_chain_transactions")
+    .select(`
+      *,
+      funding_round:funding_rounds(
+        id,
+        startup:startups(name)
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (roundId) {
+    query = query.eq("funding_round_id", roundId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Failed to fetch on-chain transactions:", error);
+    return [];
+  }
+
+  return data || [];
 }

@@ -18,3 +18,16 @@ venv/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Keys / Secrets
+**/*.pem
+secret_key.pem
+agent/secret_key.pem
+.env
+.env.*
+scripts/deployed_contracts.env
+
+# Rust / Cargo / WASM
+**/target/
+**/wasm/
+*.wasm

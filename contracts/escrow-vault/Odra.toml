@@ -1,0 +1,3 @@
+[[contracts]]
+name = "escrow_vault"
+fqn = "escrow_vault::EscrowVault"

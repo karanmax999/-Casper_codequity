@@ -13,7 +13,7 @@ export function RoundCard({ round }: { round: LaunchpadRound }) {
 
   return (
     <Link
-      href={`/rounds/${round.id}`}
+      href={`/dashboard/rounds/${round.id}`}
       className="group block overflow-hidden rounded-sm border border-[#1F1F1F] bg-[#0A0A0A] transition-colors hover:border-[#45f798]/40 hover:bg-[#0E0E0E]"
     >
       <div className="flex items-start justify-between gap-4 border-b border-[#1F1F1F] p-4">

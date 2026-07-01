@@ -38,7 +38,9 @@ export async function createFundingRound(input: CreateLaunchpadRoundInput) {
   }
 
   revalidatePath("/");
-  revalidatePath("/admin/rounds/create");
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/admin/rounds/create");
+  revalidatePath("/dashboard/transactions");
   return result;
 }
 
@@ -57,6 +59,6 @@ export async function evaluateRound(roundId: string) {
   }
 
   revalidatePath("/");
-  revalidatePath(`/rounds/${roundId}`);
+  revalidatePath(`/dashboard/rounds/${roundId}`);
   return result;
 }
