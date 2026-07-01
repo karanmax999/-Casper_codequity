@@ -27,7 +27,7 @@ fi
 
 CASPER_NODE="${CASPER_NODE_URL:-https://node.testnet.casper.network}"
 KEY_PATH="${AGENT_PRIVATE_KEY_PATH:-$ROOT_DIR/agent/secret_key.pem}"
-PAYMENT_AMOUNT="50000000000"  # 50 CSPR for contract deploys
+PAYMENT_AMOUNT="350000000000"  # 350 CSPR for contract deploys
 
 # Startup wallet (required for EscrowVault init)
 STARTUP_PUBKEY="${STARTUP_PUBKEY:-}"

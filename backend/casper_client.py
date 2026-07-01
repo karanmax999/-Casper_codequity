@@ -214,10 +214,61 @@ class CasperClient:
         finally:
             os.unlink(key_path)
 
+    def _get_account_hash(self, pubkey: str) -> str:
+        if pubkey.startswith("account-hash-"):
+            return pubkey
+        import subprocess
+        result = subprocess.run(
+            ["casper-client", "account-address", "--public-key", pubkey],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout.strip()
+
     def _live_mint_safe(self, round_id, investor_pubkey, startup_pubkey, terms_hash):
         """Submit a real SAFE NFT mint deploy."""
-        # Similar structure to _live_deploy_escrow but for the SAFE contract
-        raise NotImplementedError("Live SAFE NFT minting requires compiled safe_token.wasm")
+        import subprocess
+        import tempfile
+
+        safe_package_hash = os.getenv("SAFE_CONTRACT_UREF")
+        if not safe_package_hash:
+            raise ValueError("SAFE_CONTRACT_UREF environment variable is not configured.")
+
+        # Resolve public keys to account hashes
+        investor_account = self._get_account_hash(investor_pubkey)
+        startup_account = self._get_account_hash(startup_pubkey)
+
+        # Write key to temp file
+        with tempfile.NamedTemporaryFile(suffix=".pem", delete=False, mode="w") as f:
+            f.write(self.private_key_pem.replace("\\n", "\n"))
+            key_path = f.name
+
+        try:
+            result = subprocess.run(
+                [
+                    "casper-client", "put-deploy",
+                    "--node-address", self.node_url,
+                    "--secret-key", key_path,
+                    "--session-package-hash", safe_package_hash.replace("hash-", "").replace("uref-", ""),
+                    "--session-entry-point", "mint",
+                    "--session-arg", f"funding_round_id:string='{round_id}'",
+                    "--session-arg", f"investor:key='{investor_account}'",
+                    "--session-arg", f"startup:key='{startup_account}'",
+                    "--session-arg", f"terms_hash:string='{terms_hash}'",
+                    "--payment-amount", "5000000000",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            if result.returncode != 0:
+                raise RuntimeError(f"casper-client error: {result.stderr}")
+
+            output = json.loads(result.stdout)
+            return output["result"]["deploy_hash"]
+        finally:
+            os.unlink(key_path)
 
     def _live_release(self, contract_uref, milestone_index, recipient_pubkey, current_score):
         """Submit a real release(milestone_index) call to the EscrowVault."""

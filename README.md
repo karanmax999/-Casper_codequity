@@ -71,9 +71,11 @@ npm run dev
 
 ### 4. Smart Contracts
 ```bash
-cd contracts
-odra build
-odra test
+# Build EscrowVault
+cd contracts/escrow-vault && cargo odra build
+
+# Build SAFEToken
+cd ../safe-token && cargo odra build
 ```
 
 ## 📜 Vision

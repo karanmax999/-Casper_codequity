@@ -10,7 +10,7 @@ Score-gated CSPR escrow. Holds investor funds and releases tranches when the Cod
 **Key entry points:**
 | Function | Who calls | What it does |
 |----------|-----------|--------------|
-| `init(startup, milestones)` | Agent (deploy) | Initialises vault, stores milestone schedule |
+| `init(startup, milestones)` | Agent (deploy) | Initialises vault, stores milestone schedule (milestones passed as serialized `Vec<u8>`) |
 | `deposit()` | Agent | Adds CSPR to the vault (payable) |
 | `release(milestone_index, current_score)` | Agent | Verifies score on-chain, transfers tranche to startup |
 | `can_release(milestone_index, current_score)` | Anyone | Read-only eligibility check |
@@ -61,15 +61,15 @@ cargo install cargo-odra
 cd contracts
 
 # Build EscrowVault
-cd escrow-vault && cargo odra build --release
+cd escrow-vault && cargo odra build
 
 # Build SAFEToken
-cd ../safe-token && cargo odra build --release
+cd ../safe-token && cargo odra build
 ```
 
 Wasm binaries are written to:
-- `escrow-vault/target/wasm32-unknown-unknown/release/escrow_vault.wasm`
-- `safe-token/target/wasm32-unknown-unknown/release/safe_token.wasm`
+- `escrow-vault/wasm/EscrowVault.wasm`
+- `safe-token/wasm/SafeToken.wasm`
 
 ### Run tests (mock environment — no testnet needed)
 
@@ -102,7 +102,7 @@ casper-client account-address --public-key ./agent/public_key.pem
 
 # Paste that address into the Casper Testnet Faucet:
 # https://testnet.cspr.live/tools/faucet
-# Request ≥ 200 CSPR (two contract deploys ≈ 100 CSPR each)
+# Request ≥ 800 CSPR (each contract deployment requires 350 CSPR in payment gas)
 ```
 
 ### 3. Set environment variables
@@ -122,10 +122,8 @@ STARTUP_PUBKEY=01<startup-pubkey-hex> ./scripts/deploy_contracts.sh
 ### 5. Get contract URefs
 
 ```bash
-# Wait ~30 seconds then:
-./scripts/get_contract_urefs.sh
-
-# Copy ESCROW_CONTRACT_UREF into backend/.env
+# Poll Casper network, retrieve the final package hashes, and update backend/.env:
+python3 scripts/update_env_urefs.py
 ```
 
 ---
