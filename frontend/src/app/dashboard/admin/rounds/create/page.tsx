@@ -10,7 +10,7 @@ export default async function CreateRoundPage() {
 
   return (
     <div className="space-y-6">
-      <Link href="/" className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-[#45f798]">
+      <Link href="/dashboard" className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-[#45f798]">
         <ArrowLeft className="h-3.5 w-3.5" />
         Launchpad rounds
       </Link>

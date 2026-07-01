@@ -22,7 +22,7 @@ export default async function RoundDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <Link href="/" className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-[#45f798]">
+      <Link href="/dashboard" className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-[#45f798]">
         <ArrowLeft className="h-3.5 w-3.5" />
         Launchpad rounds
       </Link>
@@ -43,19 +43,17 @@ export default async function RoundDetailPage({ params }: PageProps) {
               </div>
               <h1 className="mt-4 text-3xl font-semibold text-white">{round.startup?.name || "Startup round"}</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-                AI-governed funding round backed by CodeQuity traction score thresholds and Casper escrow audit trails.
+                AI-governed funding round backed by Codequity traction score thresholds and Casper escrow audit trails.
               </p>
             </div>
-            {round.startup?.slug && (
-              <a
-                href={`https://terminal.codequity.live/s/${round.startup.slug}`}
-                target="_blank"
-                rel="noreferrer"
+            {round.startup?.id && (
+              <Link
+                href={`/dashboard/startups/${round.startup.id}`}
                 className="inline-flex h-9 items-center justify-center gap-2 rounded-sm border border-[#2A2A2A] px-3 text-xs font-semibold text-zinc-300 hover:border-[#45f798]/50 hover:text-[#45f798]"
               >
                 Startup profile
                 <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+              </Link>
             )}
           </div>
 
