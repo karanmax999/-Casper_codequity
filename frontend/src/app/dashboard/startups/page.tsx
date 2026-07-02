@@ -9,15 +9,23 @@ import {
   ExternalLink,
   Code2,
   Wallet,
-  TrendingUp,
   Loader2,
 } from "lucide-react";
-import Link from "next/link";
+
+type Startup = {
+  id: string;
+  name: string;
+  slug: string | null;
+  description: string | null;
+  github_url: string | null;
+  traction_score: number | null;
+  wallet_pubkey: string | null;
+};
 
 export default function StartupsDirectory() {
   const supabase = getSupabase();
   const [loading, setLoading] = useState(true);
-  const [startups, setStartups] = useState<any[]>([]);
+  const [startups, setStartups] = useState<Startup[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("ALL"); // ALL | WATCHLIST | RECENT
 
@@ -25,7 +33,7 @@ export default function StartupsDirectory() {
     if (!supabase) return;
 
     async function fetchStartups() {
-      const { data, error } = await supabase!
+      const { data } = await supabase!
         .from("startups")
         .select("id, name, slug, description, github_url, traction_score, wallet_pubkey");
       
@@ -162,7 +170,7 @@ export default function StartupsDirectory() {
                 <div className="border-t border-[#1F1F1F] pt-3 mt-3 flex items-center justify-between text-[10px] font-mono text-zinc-500">
                   <div className="flex items-center gap-1.5">
                     <Wallet className="h-3.5 w-3.5 text-zinc-600" />
-                    <span className="max-w-[120px] truncate" title={startup.wallet_pubkey}>
+                    <span className="max-w-[120px] truncate" title={startup.wallet_pubkey ?? undefined}>
                       {startup.wallet_pubkey ? `${startup.wallet_pubkey.substring(0, 8)}...` : "No Wallet Linked"}
                     </span>
                   </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Database, RadioTower, ShieldCheck, WalletCards, Sparkles, BarChart3 } from "lucide-react";
+import { ArrowRight, Database, RadioTower, ShieldCheck, WalletCards, Sparkles } from "lucide-react";
 import type { ComponentType } from "react";
 import { listLaunchpadRounds } from "@/lib/launchpad";
 import { RoundCard } from "@/components/launchpad/RoundCard";

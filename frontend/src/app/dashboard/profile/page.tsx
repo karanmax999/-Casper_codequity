@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import {
-  User,
+  User as UserIcon,
   Mail,
   Fingerprint,
   Wallet,
@@ -16,12 +16,17 @@ import {
   Loader2,
 } from "lucide-react";
 
+type ProfileUser = {
+  id: string;
+  email?: string;
+};
+
 export default function ProfilePage() {
   const supabase = getSupabase();
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<ProfileUser | null>(null);
   const [casperKey, setCasperKey] = useState("");
   const [role, setRole] = useState("founder"); // founder | investor
   const [copied, setCopied] = useState(false);
@@ -94,13 +99,17 @@ export default function ProfilePage() {
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-4 selection:bg-accent selection:text-black">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#1F1F1F] pb-5">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
-            <User className="h-8 w-8 text-[#45f798]" />
+            <UserIcon className="h-8 w-8 text-[#45f798]" />
             Profile Settings
           </h1>
           <p className="mt-1 text-sm text-zinc-500">

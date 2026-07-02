@@ -1,6 +1,6 @@
 "use client";
 
-import { Star, Building2, ExternalLink, Loader2 } from "lucide-react";
+import { Star } from "lucide-react";
 import Link from "next/link";
 
 export default function WatchlistPage() {

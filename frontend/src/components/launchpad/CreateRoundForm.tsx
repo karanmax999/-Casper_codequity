@@ -34,11 +34,7 @@ export function CreateRoundForm({
   );
   const selectedStartup = startups.find((startup) => startup.id === startupId);
   const selectedInvestor = investors.find((investor) => investor.id === investorId);
-  
-  // Testnet fallback keys ensure you can create rounds with seeded startups/investors
-  const selectedStartupReady = true;
-  const selectedInvestorReady = true;
-  
+
   const canSubmit =
     startupId &&
     investorId &&

@@ -61,6 +61,8 @@ class CasperClient:
         self.node_url = os.getenv("CASPER_NODE_URL", "https://testnet.casper.network")
         self.private_key_pem = os.getenv("AGENT_PRIVATE_KEY", "").strip()
         self.mock = _is_mock_mode()
+        self.key_algorithm = None
+        self.public_key_hex = None
 
         if self.mock:
             logger.warning(

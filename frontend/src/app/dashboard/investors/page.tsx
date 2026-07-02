@@ -4,10 +4,17 @@ import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { Users, Wallet, Loader2, ShieldCheck } from "lucide-react";
 
+type Investor = {
+  id: string;
+  name: string;
+  firm: string | null;
+  wallet_pubkey: string | null;
+};
+
 export default function InvestorsDirectory() {
   const supabase = getSupabase();
   const [loading, setLoading] = useState(true);
-  const [investors, setInvestors] = useState<any[]>([]);
+  const [investors, setInvestors] = useState<Investor[]>([]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -69,7 +76,7 @@ export default function InvestorsDirectory() {
 
               <div className="border-t border-[#1F1F1F] pt-3 flex items-center gap-1.5 text-[10px] font-mono text-zinc-500">
                 <Wallet className="h-3.5 w-3.5 text-zinc-600" />
-                <span className="truncate" title={investor.wallet_pubkey}>
+                <span className="truncate" title={investor.wallet_pubkey ?? undefined}>
                   {investor.wallet_pubkey || "No Signer Address Associated"}
                 </span>
               </div>

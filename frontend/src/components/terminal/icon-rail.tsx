@@ -16,17 +16,9 @@ import {
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/terminal/sidebar-context";
 import { getSupabase } from "@/lib/supabase";
-
-interface NavItem {
-  id: string;
-  icon: ComponentType<{ className?: string }>;
-  href: string;
-  label: string;
-}
 
 function getActiveSection(pathname: string): string {
   if (pathname.startsWith("/dashboard/profile")) return "profile";
