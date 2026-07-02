@@ -126,20 +126,23 @@ export function IconRail() {
         </button>
 
         {userEmail ? (
-          <div
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#1F1F1F] border border-border text-xs font-mono text-foreground cursor-pointer"
-            title={userEmail}
+          <Link
+            href="/dashboard/profile"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#1F1F1F] border border-border text-xs font-mono text-foreground cursor-pointer hover:border-[#45f798] transition-all"
+            title="View Profile"
             onMouseEnter={() => handleMouseEnterIcon("settings")}
           >
             {userEmail.charAt(0).toUpperCase()}
-          </div>
+          </Link>
         ) : (
-          <div
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#1F1F1F] border border-border text-muted-foreground cursor-pointer"
+          <Link
+            href="/dashboard/profile"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#1F1F1F] border border-border text-muted-foreground cursor-pointer hover:border-[#45f798] transition-all"
+            title="View Profile"
             onMouseEnter={() => handleMouseEnterIcon("settings")}
           >
             <User className="h-4 w-4" />
-          </div>
+          </Link>
         )}
       </div>
     </aside>
