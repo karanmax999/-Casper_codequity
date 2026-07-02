@@ -122,6 +122,17 @@ class CasperClient:
 
         # LIVE mode: submit actual Wasm deploy
         # This requires the compiled EscrowVault Wasm binary at ESCROW_WASM_PATH
+        wasm_path = os.getenv("ESCROW_WASM_PATH", "contracts/escrow_vault.wasm")
+        configured_escrow_ref = os.getenv("ESCROW_CONTRACT_UREF", "").strip()
+        if configured_escrow_ref and not os.path.exists(wasm_path):
+            logger.warning(
+                "ESCROW_WASM_PATH %s was not found; using configured ESCROW_CONTRACT_UREF=%s. "
+                "Create-round will continue, but release requires this value to be a callable contract hash.",
+                wasm_path,
+                configured_escrow_ref,
+            )
+            return "configured-escrow-reference", configured_escrow_ref
+
         return self._live_deploy_escrow(owner_pubkey, milestones, amount_cspr)
 
     def mint_safe_nft(
