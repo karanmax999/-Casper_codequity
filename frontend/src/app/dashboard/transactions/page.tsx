@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ExternalLink, RadioTower, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, RadioTower, XCircle } from "lucide-react";
 import { listOnChainTransactions } from "@/lib/launchpad";
 
 export const dynamic = "force-dynamic";

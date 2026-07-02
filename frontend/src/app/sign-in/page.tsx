@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { getAuthRedirectTo } from "@/lib/auth-redirect";
 import { getSupabase } from "@/lib/supabase";
 
 function subscribe() {
@@ -10,7 +11,7 @@ function subscribe() {
 }
 
 function getClientRedirectTo() {
-  return `${window.location.origin}/auth/callback?next=/dashboard`;
+  return getAuthRedirectTo();
 }
 
 function getServerRedirectTo() {
