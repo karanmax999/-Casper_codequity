@@ -23,7 +23,7 @@ export default async function CreateRoundPage() {
           </div>
           <h1 className="mt-2 text-xl font-semibold text-white">Create score-gated funding round</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-            Select a startup, investor, CSPR amount, and score thresholds. Both records need Casper wallet public keys before the backend can create on-chain launchpad records.
+            Select a startup, investor, CSPR amount, and score thresholds. Wallet public keys improve on-chain execution, but the flow lets you prepare and test launchpad rounds first.
           </p>
         </div>
         <div className="p-5">

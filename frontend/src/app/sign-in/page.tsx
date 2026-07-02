@@ -184,7 +184,7 @@ export default function SignInPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-zinc-500">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/sign-up" className="text-[#45f798] hover:underline font-semibold">
             Sign up
           </Link>

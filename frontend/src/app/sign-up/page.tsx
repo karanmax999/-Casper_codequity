@@ -4,7 +4,6 @@ import { useSyncExternalStore, useState } from "react";
 import { getAuthRedirectTo } from "@/lib/auth-redirect";
 import { getSupabase } from "@/lib/supabase";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { TerminalSquare, Lock, Mail, Loader2, AlertCircle } from "lucide-react";
 
 function subscribe() {
@@ -22,7 +21,6 @@ function getServerRedirectTo() {
 export default function SignUpPage() {
   const supabase = getSupabase();
   const redirectTo = useSyncExternalStore(subscribe, getClientRedirectTo, getServerRedirectTo);
-  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
