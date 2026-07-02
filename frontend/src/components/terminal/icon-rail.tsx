@@ -2,6 +2,7 @@
 
 import {
   LayoutDashboard,
+  RadioTower,
   SquarePlus,
   User,
   PanelLeftClose,
@@ -26,10 +27,12 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: "dashboard", icon: LayoutDashboard, href: "/dashboard", label: "Dashboard" },
   { id: "create", icon: SquarePlus, href: "/dashboard/admin/rounds/create", label: "Create Round" },
+  { id: "transactions", icon: RadioTower, href: "/dashboard/transactions", label: "Transactions" },
 ];
 
 function getActiveSection(pathname: string): string {
   if (pathname.startsWith("/dashboard/admin/rounds/create")) return "create";
+  if (pathname.startsWith("/dashboard/transactions")) return "transactions";
   if (pathname.startsWith("/dashboard")) return "dashboard";
   return "dashboard";
 }

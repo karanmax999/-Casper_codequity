@@ -1,0 +1,22 @@
+[package]
+name = "safe-token"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+name = "safe_token"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+odra = "2.8.0"
+
+[build-dependencies]
+odra-build = "2.8.0"
+
+[dev-dependencies]
+odra-test = "2.8.0"
+
+[[bin]]
+name = "safe_token_build_contract"
+path = "src/bin/build_contract.rs"

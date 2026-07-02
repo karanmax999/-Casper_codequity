@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "escrow-vault",
+    "safe-token",
+]
+resolver = "2"
