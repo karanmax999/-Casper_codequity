@@ -8,6 +8,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   TerminalSquare,
+  Building2,
+  Users,
+  Star,
+  PlusCircle,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -24,16 +28,14 @@ interface NavItem {
   label: string;
 }
 
-const navItems: NavItem[] = [
-  { id: "dashboard", icon: LayoutDashboard, href: "/dashboard", label: "Dashboard" },
-  { id: "create", icon: SquarePlus, href: "/dashboard/admin/rounds/create", label: "Create Round" },
-  { id: "transactions", icon: RadioTower, href: "/dashboard/transactions", label: "Transactions" },
-];
-
 function getActiveSection(pathname: string): string {
   if (pathname.startsWith("/dashboard/profile")) return "profile";
   if (pathname.startsWith("/dashboard/admin/rounds/create")) return "create";
   if (pathname.startsWith("/dashboard/transactions")) return "transactions";
+  if (pathname.startsWith("/dashboard/startups")) return "startups";
+  if (pathname.startsWith("/dashboard/investors")) return "investors";
+  if (pathname.startsWith("/dashboard/watchlist")) return "watchlist";
+  if (pathname.startsWith("/dashboard/register-protocol")) return "register";
   if (pathname.startsWith("/dashboard")) return "dashboard";
   return "dashboard";
 }
@@ -59,6 +61,26 @@ export function IconRail() {
 
   const activeSection = getActiveSection(pathname);
 
+  const isUserAdmin = userEmail
+    ? userEmail.toLowerCase().includes("admin") || userEmail === "karanmax999@gmail.com"
+    : false;
+
+  const adminNavItems = [
+    { id: "dashboard", icon: LayoutDashboard, href: "/dashboard", label: "Dashboard" },
+    { id: "create", icon: SquarePlus, href: "/dashboard/admin/rounds/create", label: "Create Round" },
+    { id: "transactions", icon: RadioTower, href: "/dashboard/transactions", label: "Transactions" },
+  ];
+
+  const clientNavItems = [
+    { id: "dashboard", icon: LayoutDashboard, href: "/dashboard", label: "Dashboard" },
+    { id: "startups", icon: Building2, href: "/dashboard/startups", label: "All Startups" },
+    { id: "investors", icon: Users, href: "/dashboard/investors", label: "Investor Pipeline" },
+    { id: "watchlist", icon: Star, href: "/dashboard/watchlist", label: "Watchlist" },
+    { id: "register", icon: PlusCircle, href: "/dashboard/register-protocol", label: "Register Protocol" },
+  ];
+
+  const currentNavItems = isUserAdmin ? adminNavItems : clientNavItems;
+
   return (
     <aside
       className={cn(
@@ -83,7 +105,7 @@ export function IconRail() {
         "flex min-w-max flex-row items-center justify-center gap-1 flex-1 md:mt-4 md:min-w-0 md:flex-col",
         isCollapsed ? "" : "md:w-full"
       )}>
-        {navItems.map((item) => {
+        {currentNavItems.map((item) => {
           const isActive = activeSection === item.id;
           return (
             <Link

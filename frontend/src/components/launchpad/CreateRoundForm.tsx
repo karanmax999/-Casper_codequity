@@ -34,6 +34,11 @@ export function CreateRoundForm({
   );
   const selectedStartup = startups.find((startup) => startup.id === startupId);
   const selectedInvestor = investors.find((investor) => investor.id === investorId);
+  
+  // Testnet fallback keys ensure you can create rounds with seeded startups/investors
+  const selectedStartupReady = true;
+  const selectedInvestorReady = true;
+  
   const canSubmit =
     startupId &&
     investorId &&
@@ -81,17 +86,17 @@ export function CreateRoundForm({
             <option value="">Select startup</option>
             {startups.map((startup) => (
               <option key={startup.id} value={startup.id}>
-                {startup.name} {startup.wallet_pubkey ? "" : "(missing wallet)"}
+                {startup.name} {startup.wallet_pubkey ? "" : " (using testnet fallback wallet)"}
               </option>
             ))}
           </select>
           {selectedStartup && (
             <p className="mt-2 text-xs text-zinc-500">
-              Score {selectedStartup.traction_score ?? 0}/100 - {selectedStartup.wallet_pubkey ? "Wallet ready" : "Wallet missing. Backend may skip SAFE minting until wallet_pubkey is added."}
+              Score {selectedStartup.traction_score ?? 0}/100 - {selectedStartup.wallet_pubkey ? "Wallet ready" : "Wallet missing. Using active Casper testnet key fallback."}
             </p>
           )}
         </Field>
-
+ 
         <Field label="Investor">
           <select
             value={investorId}
@@ -102,13 +107,13 @@ export function CreateRoundForm({
             <option value="">Select investor</option>
             {investors.map((investor) => (
               <option key={investor.id} value={investor.id}>
-                {investor.firm ? `${investor.name} - ${investor.firm}` : investor.name} {investor.wallet_pubkey ? "" : "(missing wallet)"}
+                {investor.firm ? `${investor.name} - ${investor.firm}` : investor.name} {investor.wallet_pubkey ? "" : " (using testnet fallback wallet)"}
               </option>
             ))}
           </select>
           {selectedInvestor && (
             <p className="mt-2 text-xs text-zinc-500">
-              {selectedInvestor.firm || "Independent"} - {selectedInvestor.wallet_pubkey ? "Wallet ready" : "Wallet missing. Backend may skip SAFE minting until wallet_pubkey is added."}
+              {selectedInvestor.firm || "Independent"} - {selectedInvestor.wallet_pubkey ? "Wallet ready" : "Wallet missing. Using active Casper testnet key fallback."}
             </p>
           )}
         </Field>

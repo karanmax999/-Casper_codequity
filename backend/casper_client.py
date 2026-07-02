@@ -35,6 +35,19 @@ def _fake_contract_uref() -> str:
     return f"uref-{rand_hex}-007"
 
 
+def _parse_json_stdout(stdout: str) -> dict:
+    stdout_str = stdout.strip()
+    try:
+        start_idx = stdout_str.find("{")
+        end_idx = stdout_str.rfind("}")
+        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+            json_str = stdout_str[start_idx:end_idx+1]
+            return json.loads(json_str)
+        return json.loads(stdout_str)
+    except Exception as e:
+        raise ValueError(f"Failed to parse JSON response: {e}. Output was: '{stdout_str}'")
+
+
 class CasperClient:
     """
     Casper Network client for the Codequity Launchpad.
@@ -205,10 +218,15 @@ class CasperClient:
 
         wasm_path = os.getenv("ESCROW_WASM_PATH", "contracts/escrow_vault.wasm")
         if not os.path.exists(wasm_path):
-            raise FileNotFoundError(
-                f"EscrowVault Wasm not found at {wasm_path}. "
-                "Build with: cd contracts && odra build --release"
-            )
+            # Try parent directory fallback (for when running from backend/ directory)
+            parent_fallback = os.path.join("..", wasm_path)
+            if os.path.exists(parent_fallback):
+                wasm_path = parent_fallback
+            else:
+                raise FileNotFoundError(
+                    f"EscrowVault Wasm not found at {wasm_path} or {parent_fallback}. "
+                    "Build with: cd contracts && odra build --release"
+                )
 
         # Build milestone init args as JSON
         ms_args = json.dumps([
@@ -227,6 +245,7 @@ class CasperClient:
                     "casper-client", "put-deploy",
                     "--node-address", self.node_url,
                     "--secret-key", key_path,
+                    "--chain-name", "casper-test",
                     "--session-path", wasm_path,
                     "--session-arg", f"owner:public_key='{owner_pubkey}'",
                     "--session-arg", f"amount_cspr:u64='{int(amount_cspr * 1_000_000_000)}'",
@@ -239,7 +258,7 @@ class CasperClient:
             if result.returncode != 0:
                 raise RuntimeError(f"casper-client error: {result.stderr}")
 
-            output = json.loads(result.stdout)
+            output = _parse_json_stdout(result.stdout)
             deploy_hash = output["result"]["deploy_hash"]
             # Contract URef is available after the deploy processes (~2-3 blocks)
             # For now return the deploy hash; the URef can be queried from the deploy result
@@ -284,6 +303,7 @@ class CasperClient:
                     "casper-client", "put-deploy",
                     "--node-address", self.node_url,
                     "--secret-key", key_path,
+                    "--chain-name", "casper-test",
                     "--session-package-hash", safe_package_hash.replace("hash-", "").replace("uref-", ""),
                     "--session-entry-point", "mint",
                     "--session-arg", f"funding_round_id:string='{round_id}'",
@@ -299,7 +319,7 @@ class CasperClient:
             if result.returncode != 0:
                 raise RuntimeError(f"casper-client error: {result.stderr}")
 
-            output = json.loads(result.stdout)
+            output = _parse_json_stdout(result.stdout)
             return output["result"]["deploy_hash"]
         finally:
             os.unlink(key_path)
@@ -319,6 +339,7 @@ class CasperClient:
                     "casper-client", "put-deploy",
                     "--node-address", self.node_url,
                     "--secret-key", key_path,
+                    "--chain-name", "casper-test",
                     "--session-hash", contract_uref.replace("uref-", ""),
                     "--session-entry-point", "release",
                     "--session-arg", f"milestone_index:u8='{milestone_index}'",
@@ -333,7 +354,7 @@ class CasperClient:
             if result.returncode != 0:
                 raise RuntimeError(f"casper-client error: {result.stderr}")
 
-            output = json.loads(result.stdout)
+            output = _parse_json_stdout(result.stdout)
             return output["result"]["deploy_hash"]
         finally:
             os.unlink(key_path)
