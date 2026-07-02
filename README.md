@@ -48,17 +48,17 @@ Casper_codequity/
 
 ### 1. Setup Database
 ```bash
-cd supabase
-supabase start
-supabase migration up
+# Start local Supabase container (requires Docker) or use npx:
+npx supabase start
+npx supabase migration up
 ```
 
 ### 2. Setup Backend
 ```bash
 cd backend
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 uvicorn main:app --reload
 ```
 

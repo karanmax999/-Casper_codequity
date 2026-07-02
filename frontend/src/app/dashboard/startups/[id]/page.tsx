@@ -23,7 +23,10 @@ type StartupProfile = {
   funding_rounds?: StartupRound[];
 };
 
-export default async function StartupProfilePage({ params }: { params: { id: string } }) {
+type PageProps = { params: Promise<{ id: string }> };
+
+export default async function StartupProfilePage({ params }: PageProps) {
+  const { id } = await params;
   const supabase = await createClient();
 
   const { data: startup } = await supabase
@@ -41,7 +44,7 @@ export default async function StartupProfilePage({ params }: { params: { id: str
         milestones (*)
       )
     `)
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!startup) {
