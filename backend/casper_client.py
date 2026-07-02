@@ -66,7 +66,6 @@ class CasperClient:
             from cryptography.hazmat.primitives.serialization import (
                 Encoding,
                 PublicFormat,
-                Raw,
                 load_pem_private_key,
             )
 
