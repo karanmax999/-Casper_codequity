@@ -34,7 +34,15 @@ export function CreateRoundForm({
   );
   const selectedStartup = startups.find((startup) => startup.id === startupId);
   const selectedInvestor = investors.find((investor) => investor.id === investorId);
-  const canSubmit = startupId && investorId && Number(amount) > 0 && Math.abs(releaseTotal - 100) <= 0.001;
+  const selectedStartupReady = Boolean(selectedStartup?.wallet_pubkey);
+  const selectedInvestorReady = Boolean(selectedInvestor?.wallet_pubkey);
+  const canSubmit =
+    startupId &&
+    investorId &&
+    selectedStartupReady &&
+    selectedInvestorReady &&
+    Number(amount) > 0 &&
+    Math.abs(releaseTotal - 100) <= 0.001;
 
   return (
     <form
@@ -42,25 +50,35 @@ export function CreateRoundForm({
       onSubmit={(event) => {
         event.preventDefault();
         setMessage(null);
+        if (selectedStartup && !selectedStartup.wallet_pubkey) {
+          setMessage("Selected startup is missing a Casper wallet public key.");
+          return;
+        }
+        if (selectedInvestor && !selectedInvestor.wallet_pubkey) {
+          setMessage("Selected investor is missing a Casper wallet public key.");
+          return;
+        }
         startTransition(async () => {
-          try {
-            const result = await createFundingRound({
-              startup_id: startupId,
-              investor_id: investorId,
-              amount_cspr: Number(amount),
-              milestones,
-            });
-            setMessage(`Round created: ${result.id}`);
-            setStartupId("");
-            setInvestorId("");
-            setAmount("");
-            setMilestones([
-              { threshold_score: 60, release_percent: 50 },
-              { threshold_score: 80, release_percent: 50 },
-            ]);
-          } catch (error) {
-            setMessage(error instanceof Error ? error.message : "Failed to create round.");
+          const result = await createFundingRound({
+            startup_id: startupId,
+            investor_id: investorId,
+            amount_cspr: Number(amount),
+            milestones,
+          });
+
+          if (!result.ok) {
+            setMessage(result.error);
+            return;
           }
+
+          setMessage(`Round created: ${result.data.id}`);
+          setStartupId("");
+          setInvestorId("");
+          setAmount("");
+          setMilestones([
+            { threshold_score: 60, release_percent: 50 },
+            { threshold_score: 80, release_percent: 50 },
+          ]);
         });
       }}
     >
@@ -74,14 +92,14 @@ export function CreateRoundForm({
           >
             <option value="">Select startup</option>
             {startups.map((startup) => (
-              <option key={startup.id} value={startup.id}>
+              <option key={startup.id} value={startup.id} disabled={!startup.wallet_pubkey}>
                 {startup.name} {startup.wallet_pubkey ? "" : "(missing wallet)"}
               </option>
             ))}
           </select>
           {selectedStartup && (
             <p className="mt-2 text-xs text-zinc-500">
-              Score {selectedStartup.traction_score ?? 0}/100 - {selectedStartup.wallet_pubkey ? "Wallet ready" : "Wallet missing"}
+              Score {selectedStartup.traction_score ?? 0}/100 - {selectedStartup.wallet_pubkey ? "Wallet ready" : "Wallet missing. Add wallet_pubkey before creating a round."}
             </p>
           )}
         </Field>
@@ -95,14 +113,14 @@ export function CreateRoundForm({
           >
             <option value="">Select investor</option>
             {investors.map((investor) => (
-              <option key={investor.id} value={investor.id}>
+              <option key={investor.id} value={investor.id} disabled={!investor.wallet_pubkey}>
                 {investor.firm ? `${investor.name} - ${investor.firm}` : investor.name} {investor.wallet_pubkey ? "" : "(missing wallet)"}
               </option>
             ))}
           </select>
           {selectedInvestor && (
             <p className="mt-2 text-xs text-zinc-500">
-              {selectedInvestor.firm || "Independent"} - {selectedInvestor.wallet_pubkey ? "Wallet ready" : "Wallet missing"}
+              {selectedInvestor.firm || "Independent"} - {selectedInvestor.wallet_pubkey ? "Wallet ready" : "Wallet missing. Add wallet_pubkey before creating a round."}
             </p>
           )}
         </Field>
@@ -186,7 +204,7 @@ export function CreateRoundForm({
 
       <div className="flex flex-col gap-3 border-t border-[#1F1F1F] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-zinc-500">
-          This creates the DB round and placeholder chain records until Casper release is connected.
+          This creates a launchpad round and asks the backend to record Casper escrow activity.
         </p>
         <button
           type="submit"

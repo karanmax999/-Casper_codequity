@@ -3,6 +3,10 @@
 import { revalidatePath } from "next/cache";
 import type { CreateLaunchpadRoundInput } from "@/types/launchpad";
 
+export type ActionResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string };
+
 const backendUrl =
   process.env.BACKEND_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -16,17 +20,24 @@ function adminKey() {
   return key;
 }
 
-export async function createFundingRound(input: CreateLaunchpadRoundInput) {
+export async function createFundingRound(input: CreateLaunchpadRoundInput): Promise<ActionResult<{ id: string }>> {
   const total = input.milestones.reduce((sum, milestone) => sum + milestone.release_percent, 0);
   if (Math.abs(total - 100) > 0.001) {
-    throw new Error("Milestone release percentages must total 100.");
+    return { ok: false, error: "Milestone release percentages must total 100." };
+  }
+
+  let key: string;
+  try {
+    key = adminKey();
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "ADMIN_API_KEY is not configured." };
   }
 
   const response = await fetch(`${backendUrl}/api/launchpad/rounds`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Admin-Key": adminKey(),
+      "X-Admin-Key": key,
     },
     body: JSON.stringify(input),
     cache: "no-store",
@@ -34,31 +45,38 @@ export async function createFundingRound(input: CreateLaunchpadRoundInput) {
 
   const result = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(result.detail || "Failed to create round.");
+    return { ok: false, error: result.detail || "Failed to create round." };
   }
 
   revalidatePath("/");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/admin/rounds/create");
   revalidatePath("/dashboard/transactions");
-  return result;
+  return { ok: true, data: result };
 }
 
-export async function evaluateRound(roundId: string) {
+export async function evaluateRound(roundId: string): Promise<ActionResult<{ released: boolean; message?: string }>> {
+  let key: string;
+  try {
+    key = adminKey();
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "ADMIN_API_KEY is not configured." };
+  }
+
   const response = await fetch(`${backendUrl}/api/launchpad/rounds/${roundId}/evaluate`, {
     method: "POST",
     headers: {
-      "X-Admin-Key": adminKey(),
+      "X-Admin-Key": key,
     },
     cache: "no-store",
   });
 
   const result = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(result.detail || "Evaluation failed.");
+    return { ok: false, error: result.detail || "Evaluation failed." };
   }
 
   revalidatePath("/");
   revalidatePath(`/dashboard/rounds/${roundId}`);
-  return result;
+  return { ok: true, data: result };
 }

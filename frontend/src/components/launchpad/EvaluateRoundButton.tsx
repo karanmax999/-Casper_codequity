@@ -16,12 +16,13 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         onClick={() => {
           setMessage(null);
           startTransition(async () => {
-            try {
-              const result = await evaluateRound(roundId);
-              setMessage(result.released ? "Milestone release recorded." : "No milestone is ready for release yet.");
-            } catch (error) {
-              setMessage(error instanceof Error ? error.message : "Evaluation failed.");
+            const result = await evaluateRound(roundId);
+            if (!result.ok) {
+              setMessage(result.error);
+              return;
             }
+
+            setMessage(result.data.message || (result.data.released ? "Milestone release recorded." : "No milestone is ready for release yet."));
           });
         }}
         className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-sm bg-[#45f798] px-4 text-xs font-bold text-black transition-colors hover:bg-[#63ffab] disabled:cursor-not-allowed disabled:opacity-60"
