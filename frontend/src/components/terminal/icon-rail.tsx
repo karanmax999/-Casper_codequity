@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/terminal/sidebar-context";
-import { createClient } from "@/lib/supabase/client";
+import { getSupabase } from "@/lib/supabase";
 
 interface NavItem {
   id: string;
@@ -46,9 +46,14 @@ export function IconRail() {
   } = useSidebar();
 
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = getSupabase();
+    if (!supabase) {
+      return;
+    }
+    const client = supabase;
+
     async function fetchUser() {
-      const { data } = await supabase.auth.getUser();
+      const { data } = await client.auth.getUser();
       setUserEmail(data.user?.email ?? null);
     }
     fetchUser();
