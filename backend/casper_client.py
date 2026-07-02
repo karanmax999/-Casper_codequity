@@ -59,20 +59,44 @@ class CasperClient:
             self._load_keypair()
 
     def _load_keypair(self):
-        """Load the Ed25519 private key from PEM."""
+        """Load an Ed25519 or secp256k1 private key from PEM."""
         try:
+            from cryptography.hazmat.primitives.asymmetric import ec
             from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-            from cryptography.hazmat.primitives.serialization import load_pem_private_key, Encoding, PublicFormat, Raw
+            from cryptography.hazmat.primitives.serialization import (
+                Encoding,
+                PublicFormat,
+                Raw,
+                load_pem_private_key,
+            )
 
             private_key_pem_bytes = self.private_key_pem.replace("\\n", "\n").encode()
             self._private_key = load_pem_private_key(private_key_pem_bytes, password=None)
-            pub_raw = self._private_key.public_key().public_bytes(
-                encoding=Encoding.Raw, format=PublicFormat.Raw
-            )
-            self.public_key_hex = "02" + pub_raw.hex()  # Casper Ed25519 prefix
-            logger.info("Loaded Ed25519 agent key: %s...", self.public_key_hex[:16])
+
+            if isinstance(self._private_key, Ed25519PrivateKey):
+                pub_raw = self._private_key.public_key().public_bytes(
+                    encoding=Encoding.Raw,
+                    format=PublicFormat.Raw,
+                )
+                self.key_algorithm = "ed25519"
+                self.public_key_hex = "01" + pub_raw.hex()
+            elif isinstance(self._private_key, ec.EllipticCurvePrivateKey):
+                if self._private_key.curve.name != "secp256k1":
+                    raise ValueError(
+                        f"Unsupported EC curve {self._private_key.curve.name}; Casper requires secp256k1."
+                    )
+                pub_compressed = self._private_key.public_key().public_bytes(
+                    encoding=Encoding.X962,
+                    format=PublicFormat.CompressedPoint,
+                )
+                self.key_algorithm = "secp256k1"
+                self.public_key_hex = "02" + pub_compressed.hex()
+            else:
+                raise ValueError(f"Unsupported private key type: {type(self._private_key).__name__}")
+
+            logger.info("Loaded %s agent key: %s...", self.key_algorithm, self.public_key_hex[:16])
         except Exception as exc:
-            logger.error("Failed to load Ed25519 private key: %s", exc)
+            logger.error("Failed to load Casper private key: %s", exc)
             raise
 
     # ------------------------------------------------------------------

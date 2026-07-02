@@ -92,5 +92,6 @@ async def health():
     return {
         "status": "ok",
         "casper_mode": "mock" if casper_client.mock else "live",
+        "casper_key_algorithm": getattr(casper_client, "key_algorithm", None),
         "version": "0.1.0",
     }
