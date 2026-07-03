@@ -166,3 +166,29 @@
 
   animation: pan-circuit 40s linear infinite;
 }
+
+@layer utilities {
+  .neon-glow-btn:hover {
+      box-shadow: 0 0 15px #00FF80;
+  }
+  .neon-text-glow {
+      text-shadow: 0 0 10px rgba(0, 255, 128, 0.6);
+  }
+  .glass-card {
+      background: rgba(17, 17, 17, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .circuit-line {
+      background: linear-gradient(90deg, rgba(0,255,128,0.1) 0%, rgba(0,255,128,0.8) 50%, rgba(0,255,128,0.1) 100%);
+      height: 1px;
+  }
+  .circuit-line-v {
+      background: linear-gradient(180deg, rgba(0,255,128,0.1) 0%, rgba(0,255,128,0.8) 50%, rgba(0,255,128,0.1) 100%);
+      width: 1px;
+  }
+  .bg-grid {
+      background-size: 50px 50px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  }
+}
