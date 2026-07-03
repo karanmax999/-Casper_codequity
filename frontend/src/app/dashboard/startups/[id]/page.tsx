@@ -159,7 +159,7 @@ export default async function StartupProfilePage({ params }: PageProps) {
     supabase.from("agent_outputs").select("*").eq("startup_id", id).order("created_at", { ascending: false }),
     supabase.from("tokens").select("*").eq("startup_id", id),
     startup.founder_id 
-      ? supabase.from("founders").select("*").eq("user_id", startup.founder_id).maybe_single()
+      ? supabase.from("founders").select("*").eq("user_id", startup.founder_id).maybeSingle()
       : Promise.resolve({ data: null })
   ]);
 
