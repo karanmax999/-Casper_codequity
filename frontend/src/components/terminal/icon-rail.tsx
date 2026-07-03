@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/terminal/sidebar-context";
 import { getSupabase } from "@/lib/supabase";
+import { isAdmin } from "@/lib/admin";
 
 function getActiveSection(pathname: string): string {
   if (pathname.startsWith("/dashboard/profile")) return "profile";
@@ -53,9 +54,7 @@ export function IconRail() {
 
   const activeSection = getActiveSection(pathname);
 
-  const isUserAdmin = userEmail
-    ? userEmail.toLowerCase().includes("admin") || userEmail === "karanmax999@gmail.com"
-    : false;
+  const isUserAdmin = isAdmin(userEmail);
 
   const adminNavItems = [
     { id: "dashboard", icon: LayoutDashboard, href: "/dashboard", label: "Dashboard" },
