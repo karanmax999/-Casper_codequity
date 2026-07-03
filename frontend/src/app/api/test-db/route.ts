@@ -1,0 +1,19 @@
+import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  const url = "https://uxwgjqsmqsfiafvztnli.supabase.co/rest/v1/startups?select=*";
+  const headers = {
+    "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4d2dqcXNtcXNmaWFmdnp0bmxpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTI2MjYxNiwiZXhwIjoyMDk0ODM4NjE2fQ.yqmkKWhdfsk_2NCzBotw3UPCpvW7zy2mhlgrZVZJn0k",
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4d2dqcXNtcXNmaWFmdnp0bmxpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTI2MjYxNiwiZXhwIjoyMDk0ODM4NjE2fQ.yqmkKWhdfsk_2NCzBotw3UPCpvW7zy2mhlgrZVZJn0k"
+  };
+
+  try {
+    const res = await fetch(url, { headers, cache: 'no-store' });
+    const json = await res.json();
+    return NextResponse.json(json);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message, stack: err.stack }, { status: 500 });
+  }
+}

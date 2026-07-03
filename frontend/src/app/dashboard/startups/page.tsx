@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getSupabase } from "@/lib/supabase";
 import {
   Building2,
@@ -20,9 +21,12 @@ type Startup = {
   github_url: string | null;
   traction_score: number | null;
   wallet_pubkey: string | null;
+  category?: string | null;
+  stage?: string | null;
 };
 
 export default function StartupsDirectory() {
+  const router = useRouter();
   const supabase = getSupabase();
   const [loading, setLoading] = useState(true);
   const [startups, setStartups] = useState<Startup[]>([]);
@@ -35,7 +39,7 @@ export default function StartupsDirectory() {
     async function fetchStartups() {
       const { data } = await supabase!
         .from("startups")
-        .select("id, name, slug, description, github_url, traction_score, wallet_pubkey");
+        .select("id, name, slug, description, github_url, traction_score, wallet_pubkey, category, stage");
       
       if (data) {
         setStartups(data);
@@ -58,7 +62,9 @@ export default function StartupsDirectory() {
 
   const filteredStartups = startups.filter((startup) => {
     const matchesSearch = startup.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (startup.description && startup.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      (startup.description && startup.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (startup.category && startup.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (startup.stage && startup.stage.toLowerCase().includes(searchTerm.toLowerCase()));
     
     if (activeTab === "WATCHLIST") {
       return matchesSearch && watchlist.includes(startup.id);
@@ -133,7 +139,8 @@ export default function StartupsDirectory() {
             return (
               <div
                 key={startup.id}
-                className="group relative rounded-lg border border-[#1F1F1F] bg-[#0A0A0A] p-5 hover:border-zinc-500 transition-all flex flex-col justify-between h-[210px]"
+                onClick={() => router.push(`/dashboard/startups/${startup.id}`)}
+                className="group relative rounded-lg border border-[#1F1F1F] bg-[#0A0A0A] p-5 hover:border-[#45f798]/50 transition-all flex flex-col justify-between h-[210px] cursor-pointer"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
@@ -142,9 +149,9 @@ export default function StartupsDirectory() {
                         {startup.name}
                       </h3>
                       <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-mono mt-1 uppercase">
-                        <span>DEFI</span>
+                        <span>{startup.category || "General"}</span>
                         <span>·</span>
-                        <span>SERIES B</span>
+                        <span>{startup.stage || "Early Stage"}</span>
                       </div>
                     </div>
                     
@@ -180,6 +187,7 @@ export default function StartupsDirectory() {
                       href={startup.github_url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       className="flex items-center gap-1 hover:text-white transition-colors text-zinc-400"
                     >
                       <Code2 className="h-3.5 w-3.5" />

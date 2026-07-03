@@ -85,6 +85,28 @@ from routers.launchpad import router as launchpad_router  # noqa: E402
 app.include_router(launchpad_router)
 
 
+@app.get("/test-schema")
+async def test_schema():
+    import httpx
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    headers = {
+        "apikey": key,
+        "Authorization": f"Bearer {key}"
+    }
+    async with httpx.AsyncClient() as client:
+        r = await client.get(f"{url}/rest/v1/", headers=headers)
+        return r.json()
+
+
+@app.get("/test-spec-api")
+async def test_spec_api():
+    from routers.launchpad import get_supabase
+    db = get_supabase()
+    res = db.table("agent_outputs").select("*").execute()
+    return {"agent_outputs": res.data}
+
+
 @app.get("/health")
 async def health():
     """Simple health check — used by Railway/Render keep-alive."""
@@ -93,5 +115,5 @@ async def health():
         "status": "ok",
         "casper_mode": "mock" if casper_client.mock else "live",
         "casper_key_algorithm": getattr(casper_client, "key_algorithm", None),
-        "version": "0.1.0",
+        "version": "0.1.5-test",
     }
