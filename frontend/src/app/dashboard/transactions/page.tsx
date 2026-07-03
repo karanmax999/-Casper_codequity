@@ -67,7 +67,7 @@ export default async function TransactionsPage() {
                 <div className="min-w-0 pl-4">
                   {tx.transaction_hash && tx.transaction_hash !== "failed" ? (
                     <a
-                      href={`https://testnet.casper.network/deploy/${tx.transaction_hash}`}
+                      href={`https://testnet.cspr.live/deploy/${tx.transaction_hash}`}
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center gap-1.5 font-mono text-xs text-zinc-300 hover:text-[#45f798]"

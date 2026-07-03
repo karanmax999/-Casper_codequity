@@ -67,8 +67,8 @@ export default function ProfilePage() {
     setSaveStatus(null);
 
     // Validate Casper Key length if present
-    if (casperKey && casperKey.length !== 66) {
-      setSaveStatus("Error: Casper Public Key must be exactly 66 hex characters (starts with 01 or 02).");
+    if (casperKey && casperKey.length !== 66 && casperKey.length !== 68) {
+      setSaveStatus("Error: Casper Public Key must be exactly 66 or 68 hex characters (starts with 01 or 02).");
       setSaving(false);
       return;
     }
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                 <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Wallet className="h-4 w-4 text-[#45f798]" /> Casper Public Key (Hex)
                 </label>
-                <span className="text-[10px] text-zinc-600 font-mono">Length: {casperKey.length}/66</span>
+                <span className="text-[10px] text-zinc-600 font-mono">Length: {casperKey.length}/66 or 68</span>
               </div>
               <input
                 type="text"

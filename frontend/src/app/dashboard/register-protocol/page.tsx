@@ -42,8 +42,15 @@ export default function RegisterProtocol() {
       return;
     }
 
-    if (walletPubkey && walletPubkey.length !== 66) {
-      setStatus("Error: Casper Public Key must be exactly 66 hex characters.");
+    if (walletPubkey && walletPubkey.length !== 66 && walletPubkey.length !== 68) {
+      setStatus("Error: Casper Public Key must be exactly 66 or 68 hex characters.");
+      setSaving(false);
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setStatus("Error: You must be logged in to register a protocol.");
       setSaving(false);
       return;
     }
@@ -58,6 +65,7 @@ export default function RegisterProtocol() {
           github_url: githubUrl || null,
           traction_score: Number(tractionScore),
           wallet_pubkey: walletPubkey || null,
+          founder_id: user.id,
         },
       ]);
 
@@ -199,7 +207,7 @@ export default function RegisterProtocol() {
             className="w-full bg-[#030303] border border-[#1F1F1F] rounded-sm py-2.5 px-3 text-sm text-white placeholder-zinc-700 font-mono focus:outline-none focus:border-[#45f798] transition-colors"
           />
           <p className="text-[10px] text-zinc-500 leading-normal">
-            Must be a valid 66-character compressed public key.
+            Must be a valid 66 or 68-character compressed public key.
           </p>
         </div>
 

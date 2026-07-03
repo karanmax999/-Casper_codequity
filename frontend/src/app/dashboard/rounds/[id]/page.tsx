@@ -84,8 +84,16 @@ export default async function RoundDetailPage({ params }: PageProps) {
       <section className="rounded-sm border border-[#1F1F1F] bg-[#0A0A0A] p-4">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">On-chain references</div>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
-          <Reference label="Escrow contract" value={round.escrow_contract_uref} href={`https://testnet.casper.network/contract/${round.escrow_contract_uref}`} />
-          <Reference label="SAFE NFT mint" value={round.safe_nft_mint_hash || "Pending"} href={round.safe_nft_mint_hash ? `https://testnet.casper.network/deploy/${round.safe_nft_mint_hash}` : undefined} />
+          <Reference 
+            label="Escrow contract" 
+            value={round.escrow_contract_uref} 
+            href={round.escrow_contract_uref.startsWith("uref-") ? undefined : `https://testnet.cspr.live/contract/${round.escrow_contract_uref}`} 
+          />
+          <Reference 
+            label="SAFE NFT mint" 
+            value={round.safe_nft_mint_hash || "Pending"} 
+            href={round.safe_nft_mint_hash ? `https://testnet.cspr.live/deploy/${round.safe_nft_mint_hash}` : undefined} 
+          />
         </div>
       </section>
     </div>
