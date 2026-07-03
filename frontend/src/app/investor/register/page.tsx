@@ -1,22 +1,31 @@
 import { InvestorRegistrationForm } from "@/components/investor/InvestorRegistrationForm";
-import { TerminalSquare } from "lucide-react";
 import Link from "next/link";
 
 export default function InvestorRegistrationPage() {
   return (
-    <div className="min-h-screen bg-[#000000] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl">
+    <div className="min-h-screen bg-background-pure py-12 px-margin-mobile md:px-margin-desktop relative">
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-grid pointer-events-none opacity-30 z-0"></div>
+      
+      <div className="mx-auto max-w-3xl relative z-10">
         <div className="text-center mb-10">
-          <Link href="/" className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-[#1F1F1F] bg-[#0A0A0A] text-accent mb-4 hover:border-accent/50 transition-colors">
-            <TerminalSquare className="h-6 w-6 text-[#45f798]" />
+          <Link href="/" className="inline-flex items-center gap-2 mb-8 group">
+            <span className="material-symbols-outlined text-primary-container text-3xl group-hover:neon-text-glow transition-all">token</span>
+            <span className="text-headline-lg text-on-surface tracking-tighter">CodeQuity</span>
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Become an Investor Partner</h1>
-          <p className="mt-4 text-base text-zinc-400">
-            Join the Codequity Launchpad ecosystem to access exclusive deal flow and automated milestone tracking.
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-primary-container/10 border border-primary-container/50 mb-6 mx-auto">
+            <span className="material-symbols-outlined text-primary-container text-sm">rocket_launch</span>
+            <span className="text-terminal-label text-primary-container uppercase tracking-widest">FOR INVESTORS</span>
+          </div>
+          <h1 className="text-headline-lg-mobile md:text-headline-xl text-on-surface">
+            Become an <span className="text-primary-container neon-text-glow">Investor</span> Partner
+          </h1>
+          <p className="mt-4 text-data-mono text-on-surface-variant max-w-2xl mx-auto">
+            Join the CodeQuity Launchpad ecosystem to access exclusive deal flow and automated milestone tracking.
           </p>
         </div>
 
-        <div className="rounded-sm border border-[#1F1F1F] bg-[#0A0A0A] p-8 shadow-xl">
+        <div className="glass-card rounded-xl border border-primary-container/30 p-8 md:p-12 shadow-[0_0_40px_rgba(0,255,128,0.05)]">
           <InvestorRegistrationForm />
         </div>
       </div>

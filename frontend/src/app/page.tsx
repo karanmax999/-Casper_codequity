@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { InvestorSection } from "@/components/landing/InvestorSection";
 import {
   ArrowRight,
   BarChart3,
@@ -170,6 +171,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <InvestorSection />
 
       <section className="relative border-b border-[#123626] bg-[#020504] px-5 py-20 md:px-8">
         <div className="mx-auto max-w-7xl">
