@@ -1,4 +1,4 @@
-"""
+6"""
 casper_client.py — Casper Network integration for the Codequity Launchpad backend.
 
 In MOCK MODE (when AGENT_PRIVATE_KEY is not set), all methods return realistic-looking
@@ -218,7 +218,7 @@ class CasperClient:
         import subprocess
         import tempfile
 
-        wasm_path = os.getenv("ESCROW_WASM_PATH", "contracts/escrow_vault.wasm")
+        wasm_path = os.getenv("ESCROW_WASM_PATH", "/app/contracts/escrow_vault.wasm")
         if not os.path.exists(wasm_path):
             # Try parent directory fallback (for when running from backend/ directory)
             parent_fallback = os.path.join("..", wasm_path)

@@ -48,6 +48,39 @@ export function CreateRoundForm({
         event.preventDefault();
         setMessage(null);
         startTransition(async () => {
+          // 1. Trigger Casper Wallet Extension
+          try {
+            const casperHelper = (window as any).casperlabsHelper;
+            if (!casperHelper) {
+              setMessage("Please install the Casper Wallet browser extension to sign the payment.");
+              return;
+            }
+
+            // Request connection
+            const isConnected = await casperHelper.requestConnection();
+            if (!isConnected) {
+              setMessage("Wallet connection rejected.");
+              return;
+            }
+
+            // Get active public key
+            const pubKey = await casperHelper.getActivePublicKey();
+            
+            // Sign a simple authorization message to simulate payment
+            const messageString = `Authorize CSPR deployment and payment for round creation.\nAmount: ${amount} CSPR\nStartup: ${startupId}`;
+            const signature = await casperHelper.signMessage(messageString, pubKey);
+            
+            if (!signature) {
+              setMessage("Payment signature was cancelled.");
+              return;
+            }
+          } catch (err: any) {
+            console.error("Casper wallet error:", err);
+            setMessage(`Casper Wallet Error: ${err.message || "Unknown error"}`);
+            return;
+          }
+
+          // 2. Process Round Creation
           const result = await createFundingRound({
             startup_id: startupId,
             investor_id: investorId,
@@ -60,7 +93,7 @@ export function CreateRoundForm({
             return;
           }
 
-          setMessage(`Round created: ${result.data.id}`);
+          setMessage(`Round created successfully: ${result.data.id}`);
           setStartupId("");
           setInvestorId("");
           setAmount("");
@@ -193,14 +226,14 @@ export function CreateRoundForm({
 
       <div className="flex flex-col gap-3 border-t border-[#1F1F1F] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-zinc-500">
-          This creates a launchpad round and asks the backend to record Casper escrow activity.
+          This connects to your Casper Wallet to authorize payment and creates the launchpad round.
         </p>
         <button
           type="submit"
           disabled={!canSubmit || isPending}
           className="inline-flex h-10 items-center justify-center rounded-sm bg-[#45f798] px-5 text-xs font-bold text-black transition-colors hover:bg-[#63ffab] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isPending ? "Creating..." : "Create round"}
+          {isPending ? "Authenticating & Creating..." : "Authorize & Create Round"}
         </button>
       </div>
 
