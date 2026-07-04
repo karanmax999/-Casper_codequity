@@ -72,6 +72,7 @@ export async function updateInvestorProfile(input: any): Promise<ActionResult<vo
   }
   
   revalidatePath("/dashboard/profile");
+  revalidatePath("/dashboard");
   return { ok: true, data: undefined };
 }
 

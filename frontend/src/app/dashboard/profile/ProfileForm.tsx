@@ -11,11 +11,18 @@ export function ProfileForm({ investor }: { investor: any }) {
   const [walletPubkey, setWalletPubkey] = useState(investor.wallet_pubkey || "");
 
   useEffect(() => {
+    // Instantly load cached wallet public key on mount to prevent reset on refresh
+    const cachedPubkey = localStorage.getItem("casper_connected_pubkey");
+    if (cachedPubkey && !walletPubkey) {
+      setWalletPubkey(cachedPubkey);
+    }
+
     const handleActiveKeyChanged = (event: any) => {
       const isDisconnected = localStorage.getItem("casper_wallet_disconnected") === "true";
       if (isDisconnected) return;
       if (event.detail && event.detail.activeKey) {
         setWalletPubkey(event.detail.activeKey);
+        localStorage.setItem("casper_connected_pubkey", event.detail.activeKey);
       }
     };
 
@@ -24,11 +31,13 @@ export function ProfileForm({ investor }: { investor: any }) {
       if (isDisconnected) return;
       if (event.detail && event.detail.activeKey) {
         setWalletPubkey(event.detail.activeKey);
+        localStorage.setItem("casper_connected_pubkey", event.detail.activeKey);
       }
     };
 
     const handleDisconnected = () => {
       setWalletPubkey("");
+      localStorage.removeItem("casper_connected_pubkey");
     };
 
     // Register Casper Wallet custom event listeners
@@ -49,6 +58,7 @@ export function ProfileForm({ investor }: { investor: any }) {
             const activeKey = await provider.getActivePublicKey();
             if (activeKey) {
               setWalletPubkey(activeKey);
+              localStorage.setItem("casper_connected_pubkey", activeKey);
             }
           }
         } catch (err) {
@@ -95,6 +105,7 @@ export function ProfileForm({ investor }: { investor: any }) {
         const activeKey = await provider.getActivePublicKey();
         if (activeKey) {
           setWalletPubkey(activeKey);
+          localStorage.setItem("casper_connected_pubkey", activeKey);
           localStorage.removeItem("casper_wallet_disconnected");
         } else {
           alert("Could not retrieve active public key. Please unlock your Casper Wallet.");
@@ -110,6 +121,7 @@ export function ProfileForm({ investor }: { investor: any }) {
 
   const handleDisconnectWallet = () => {
     setWalletPubkey("");
+    localStorage.removeItem("casper_connected_pubkey");
     localStorage.setItem("casper_wallet_disconnected", "true");
   };
 
