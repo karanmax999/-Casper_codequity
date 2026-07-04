@@ -85,7 +85,6 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    box-shadow: none !important;
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
@@ -175,9 +174,10 @@
       text-shadow: 0 0 10px rgba(0, 255, 128, 0.6);
   }
   .glass-card {
-      background: rgba(17, 17, 17, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(10, 10, 10, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
   }
   .circuit-line {
       background: linear-gradient(90deg, rgba(0,255,128,0.1) 0%, rgba(0,255,128,0.8) 50%, rgba(0,255,128,0.1) 100%);
@@ -189,6 +189,16 @@
   }
   .bg-grid {
       background-size: 50px 50px;
-      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  }
+  .glow-input {
+      transition: all 0.2s ease-in-out;
+  }
+  .glow-input:focus {
+      box-shadow: 0 0 15px rgba(0, 255, 128, 0.15);
+      border-color: rgba(0, 255, 128, 0.4) !important;
+  }
+  .text-glow-primary {
+      text-shadow: 0 0 12px rgba(0, 255, 128, 0.5);
   }
 }
