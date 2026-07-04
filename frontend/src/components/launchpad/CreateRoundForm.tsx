@@ -48,6 +48,10 @@ export function CreateRoundForm({
         event.preventDefault();
         setMessage(null);
         startTransition(async () => {
+          let signature: string | undefined;
+          let pubKey: string | undefined;
+          let messageString: string | undefined;
+
           // 1. Trigger Casper Wallet Extension
           try {
             const casperHelper = (window as any).casperlabsHelper;
@@ -64,11 +68,11 @@ export function CreateRoundForm({
             }
 
             // Get active public key
-            const pubKey = await casperHelper.getActivePublicKey();
+            pubKey = await casperHelper.getActivePublicKey();
             
             // Sign a simple authorization message to simulate payment
-            const messageString = `Authorize CSPR deployment and payment for round creation.\nAmount: ${amount} CSPR\nStartup: ${startupId}`;
-            const signature = await casperHelper.signMessage(messageString, pubKey);
+            messageString = `Authorize CSPR deployment and payment for round creation.\nAmount: ${amount} CSPR\nStartup: ${startupId}`;
+            signature = await casperHelper.signMessage(messageString, pubKey);
             
             if (!signature) {
               setMessage("Payment signature was cancelled.");
@@ -86,6 +90,9 @@ export function CreateRoundForm({
             investor_id: investorId,
             amount_cspr: Number(amount),
             milestones,
+            investor_signature: signature,
+            wallet_pubkey: pubKey,
+            message_string: messageString,
           });
 
           if (!result.ok) {

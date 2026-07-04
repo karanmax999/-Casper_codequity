@@ -60,4 +60,7 @@ export type CreateLaunchpadRoundInput = {
     threshold_score: number;
     release_percent: number;
   }>;
+  investor_signature?: string;
+  wallet_pubkey?: string;
+  message_string?: string;
 };
