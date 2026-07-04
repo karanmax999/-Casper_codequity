@@ -63,7 +63,9 @@ const config: Config = {
         "surface-bright": "#38393a",
         "surface-container-highest": "#333535",
         "secondary-container": "#4a4949",
-        "on-error-container": "#ffdad6"
+        "on-error-container": "#ffdad6",
+        "electric-blue": "#00f0ff",
+        "cyber-purple": "#b900ff"
       },
       spacing: {
         "margin-desktop": "64px",
@@ -81,8 +83,21 @@ const config: Config = {
         "button-text": ["Inter", "sans-serif"],
         "headline-lg": ["Inter", "sans-serif"],
         "terminal-label": ["JetBrains Mono", "monospace"],
-        "data-mono": ["JetBrains Mono", "monospace"]
+        "data-mono": ["JetBrains Mono", "monospace"],
+        "space-grotesk": ["var(--font-space-grotesk)", "sans-serif"]
       },
+      keyframes: {
+        glitch: {
+          '0%, 100%': { transform: 'translate(0)' },
+          '20%': { transform: 'translate(-2px, 2px)' },
+          '40%': { transform: 'translate(-2px, -2px)' },
+          '60%': { transform: 'translate(2px, 2px)' },
+          '80%': { transform: 'translate(2px, -2px)' }
+        }
+      },
+      animation: {
+        glitch: 'glitch 0.2s ease-in-out infinite alternate',
+      }
       fontSize: {
         "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
         "headline-xl": ["64px", { "lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
