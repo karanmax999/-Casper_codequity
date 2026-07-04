@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import type { CreateLaunchpadRoundInput } from "@/types/launchpad";
+import { createClient } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/admin";
 
 export type ActionResult<T> =
   | { ok: true; data: T }
@@ -20,10 +22,125 @@ function adminKey() {
   return key;
 }
 
+export async function getMyInvestorRecord(): Promise<ActionResult<any>> {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { ok: false, error: "Not authenticated" };
+  }
+
+  const { data, error } = await supabase
+    .from("investors")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  return { ok: true, data };
+}
+
+export async function updateInvestorProfile(input: any): Promise<ActionResult<void>> {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { ok: false, error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("investors")
+    .update(input)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  revalidatePath("/dashboard/profile");
+  return { ok: true, data: undefined };
+}
+
+export async function approveInvestor(investorId: string): Promise<ActionResult<void>> {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user || !isAdmin(user.email)) {
+    return { ok: false, error: "Unauthorized" };
+  }
+
+  const { error } = await supabase
+    .from("investors")
+    .update({
+      approved: true,
+      approved_at: new Date().toISOString(),
+      reviewed_by: user.id
+    })
+    .eq("id", investorId);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  revalidatePath("/dashboard/admin/investors");
+  return { ok: true, data: undefined };
+}
+
+export async function rejectInvestor(investorId: string): Promise<ActionResult<void>> {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user || !isAdmin(user.email)) {
+    return { ok: false, error: "Unauthorized" };
+  }
+
+  const { error } = await supabase
+    .from("investors")
+    .update({
+      approved: false,
+      reviewed_by: user.id
+    })
+    .eq("id", investorId);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  revalidatePath("/dashboard/admin/investors");
+  return { ok: true, data: undefined };
+}
+
 export async function createFundingRound(input: CreateLaunchpadRoundInput): Promise<ActionResult<{ id: string }>> {
   const total = input.milestones.reduce((sum, milestone) => sum + milestone.release_percent, 0);
   if (Math.abs(total - 100) > 0.001) {
     return { ok: false, error: "Milestone release percentages must total 100." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return { ok: false, error: "Unauthorized" };
+  }
+
+  const isUserAdmin = isAdmin(user.email);
+  let finalInput = { ...input };
+
+  if (!isUserAdmin) {
+    // Check if approved investor and has wallet
+    const { data: investor, error } = await supabase
+      .from("investors")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error || !investor) {
+      return { ok: false, error: "Investor record not found." };
+    }
+    if (!investor.approved) {
+      return { ok: false, error: "Your investor application is still pending approval." };
+    }
+    if (!investor.wallet_pubkey) {
+      return { ok: false, error: "You must add your Casper wallet public key in your profile before creating a round." };
+    }
+    
+    // Override investor ID
+    finalInput.investor_id = investor.id;
   }
 
   let key: string;
@@ -39,7 +156,7 @@ export async function createFundingRound(input: CreateLaunchpadRoundInput): Prom
       "Content-Type": "application/json",
       "X-Admin-Key": key,
     },
-    body: JSON.stringify(input),
+    body: JSON.stringify(finalInput),
     cache: "no-store",
   });
 
@@ -56,6 +173,17 @@ export async function createFundingRound(input: CreateLaunchpadRoundInput): Prom
 }
 
 export async function evaluateRound(roundId: string): Promise<ActionResult<{ released: boolean; message?: string }>> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Unauthorized" };
+
+  const isUserAdmin = isAdmin(user.email);
+  if (!isUserAdmin) {
+    const { data: investor } = await supabase.from("investors").select("id").eq("user_id", user.id).maybeSingle();
+    if (!investor) return { ok: false, error: "Not an investor" };
+    // Ownership check would happen here, but relying on backend for now as requested
+  }
+
   let key: string;
   try {
     key = adminKey();

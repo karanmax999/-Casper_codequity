@@ -1,9 +1,9 @@
-import { InvestorRegistrationForm } from "@/components/investor/InvestorRegistrationForm";
+import { RegistrationWizard } from "@/components/investor/RegistrationWizard";
 import Link from "next/link";
 
 export default function InvestorRegistrationPage() {
   return (
-    <div className="min-h-screen bg-background-pure py-12 px-margin-mobile md:px-margin-desktop relative">
+    <div className="min-h-screen bg-background-pure py-12 px-margin-mobile md:px-margin-desktop relative overflow-x-hidden">
       {/* Background Grid */}
       <div className="absolute inset-0 bg-grid pointer-events-none opacity-30 z-0"></div>
       
@@ -26,7 +26,7 @@ export default function InvestorRegistrationPage() {
         </div>
 
         <div className="glass-card rounded-xl border border-primary-container/30 p-8 md:p-12 shadow-[0_0_40px_rgba(0,255,128,0.05)]">
-          <InvestorRegistrationForm />
+          <RegistrationWizard />
         </div>
       </div>
     </div>

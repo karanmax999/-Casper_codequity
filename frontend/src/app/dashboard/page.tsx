@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Database, RadioTower, ShieldCheck, WalletCards, Sparkles } from "lucide-react";
+import { ArrowRight, Database, RadioTower, ShieldCheck, WalletCards, Sparkles, CheckCircle2, Clock } from "lucide-react";
 import type { ComponentType } from "react";
 import { listLaunchpadRounds } from "@/lib/launchpad";
 import { RoundCard } from "@/components/launchpad/RoundCard";
@@ -15,6 +15,12 @@ export default async function Dashboard() {
   const email = user?.email;
   const isUserAdmin = isAdmin(email);
 
+  const { data: myInvestor } = await supabase
+    .from("investors")
+    .select("*")
+    .eq("user_id", user?.id)
+    .maybeSingle();
+
   if (isUserAdmin) {
     const rounds = await listLaunchpadRounds();
     const activeRounds = rounds.filter((round) => round.status === "active").length;
@@ -25,7 +31,7 @@ export default async function Dashboard() {
     const totalCapital = rounds.reduce((sum, round) => sum + Number(round.amount_cspr || 0), 0);
 
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 max-w-7xl mx-auto py-2">
         <section className="border-b border-[#1F1F1F] pb-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -68,7 +74,67 @@ export default async function Dashboard() {
     );
   }
 
-  // Non-Admin Command Center View
+  if (myInvestor && myInvestor.approved) {
+    const allRounds = await listLaunchpadRounds();
+    const myRounds = allRounds.filter(r => r.investor_id === myInvestor.id);
+
+    return (
+      <div className="space-y-8 max-w-7xl mx-auto py-2">
+        <section className="border-b border-[#1F1F1F] pb-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#45f798]">
+                <Sparkles className="h-3.5 w-3.5" />
+                Investor Dashboard
+              </div>
+              <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+                My Funding Rounds
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
+                Monitor and manage your active allocations on Casper.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/dashboard/admin/rounds/create"
+                className="inline-flex h-10 items-center justify-center rounded-sm bg-[#45f798] px-5 text-xs font-bold text-black transition-colors hover:bg-[#63ffab]"
+              >
+                Create new round
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {!myInvestor.wallet_pubkey && (
+          <div className="rounded border border-orange-500/30 bg-orange-500/10 p-4 text-orange-400 flex items-center justify-between">
+            <span className="text-sm font-medium">⚠️ You must add your Casper wallet public key before creating a round.</span>
+            <Link href="/dashboard/profile" className="text-xs font-bold underline hover:text-white">Add Wallet →</Link>
+          </div>
+        )}
+
+        {myRounds.length > 0 ? (
+          <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+            {myRounds.map((round) => (
+              <RoundCard key={round.id} round={round} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-[#1F1F1F] bg-[#0A0A0A] p-12 text-center">
+            <h3 className="text-lg font-bold text-white">No active rounds</h3>
+            <p className="mt-2 text-sm text-zinc-500">You haven't funded any protocols yet.</p>
+            <Link
+              href="/dashboard/admin/rounds/create"
+              className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-[#45f798] px-6 text-xs font-bold text-black hover:bg-[#63ffab] transition-all"
+            >
+              Fund a startup <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Pending / Non-Investor / Standard User View
   const { count: startupsCount } = await supabase
     .from("startups")
     .select("*", { count: "exact", head: true });
@@ -88,6 +154,22 @@ export default async function Dashboard() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto py-2 selection:bg-accent selection:text-black">
+      {myInvestor && !myInvestor.approved && (
+        <div className="rounded-lg border border-[#45f798]/30 bg-[#45f798]/5 p-6 flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#45f798]/10 text-[#45f798]">
+              <Clock className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-[#45f798]">Application Under Review</h3>
+              <p className="text-xs text-zinc-400 mt-1">
+                Your investor account is currently being reviewed. We'll notify you once approved.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Section */}
       <section className="border-b border-[#1F1F1F] pb-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -103,13 +185,23 @@ export default async function Dashboard() {
               Start by saving protocols you follow, or register your own protocol to unlock founder pipeline tools.
             </p>
           </div>
-          <Link
-            href="/dashboard/startups"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-[#45f798] px-6 text-xs font-bold text-black hover:bg-[#63ffab] transition-all"
-          >
-            Browse protocols
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <div className="flex items-center gap-4">
+            {!myInvestor && (
+              <Link
+                href="/investor/register"
+                className="inline-flex h-10 items-center justify-center rounded-sm border border-[#45f798] text-[#45f798] px-6 text-xs font-bold hover:bg-[#45f798]/10 transition-all"
+              >
+                Apply as Investor
+              </Link>
+            )}
+            <Link
+              href="/dashboard/startups"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-[#45f798] px-6 text-xs font-bold text-black hover:bg-[#63ffab] transition-all"
+            >
+              Browse protocols
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -157,32 +249,6 @@ export default async function Dashboard() {
         <StatCard label="YOUR WATCHLIST" value="0" />
         <StatCard label="PROFILE VIEWS THIS WEEK" value="12" />
       </div>
-
-      {/* Verified Intelligence Feed */}
-      <section className="space-y-4 rounded-lg border border-[#1F1F1F] bg-[#0A0A0A] p-5">
-        <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
-          VERIFIED INTELLIGENCE FEED
-        </h2>
-        <div className="divide-y divide-[#1F1F1F] space-y-4 pt-1">
-          <FeedItem
-            title="ZEC Volatility Alert"
-            description="Zcash moved 5.8% in the last 24 hours."
-            meta="SRC: MARKET DATA · PRICE MOVE"
-          />
-          <FeedItem
-            title="SOL Volatility Alert"
-            description="Solana moved 4.3% in the last 24 hours."
-            meta="SRC: MARKET DATA · PRICE MOVE"
-            className="pt-4"
-          />
-          <FeedItem
-            title="ETH Volatility Alert"
-            description="Ethereum moved 2.7% in the last 24 hours."
-            meta="SRC: MARKET DATA · PRICE MOVE"
-            className="pt-4"
-          />
-        </div>
-      </section>
     </div>
   );
 }
@@ -194,31 +260,6 @@ function StatCard({ label, value }: { label: string; value: string }) {
         {label}
       </div>
       <div className="mt-3 text-3xl font-bold text-white">{value}</div>
-    </div>
-  );
-}
-
-function FeedItem({
-  title,
-  description,
-  meta,
-  className,
-}: {
-  title: string;
-  description: string;
-  meta: string;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex flex-col gap-1", className)}>
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-bold text-white">{title}</span>
-        <span className="text-[10px] text-zinc-600 font-mono">LESS THAN A MINUTE AGO</span>
-      </div>
-      <p className="text-xs text-zinc-400 mt-1">{description}</p>
-      <div className="text-[9px] font-bold text-zinc-500 font-mono mt-1 tracking-wider">
-        {meta}
-      </div>
     </div>
   );
 }
