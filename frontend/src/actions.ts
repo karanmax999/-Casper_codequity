@@ -159,42 +159,34 @@ export async function createFundingRound(input: CreateLaunchpadRoundInput): Prom
     finalInput.investor_id = investor.id;
   }
 
-  // Bypass Python backend and create round directly in Supabase
-  const { data: roundData, error: roundError } = await supabase
-    .from("funding_rounds")
-    .insert({
-      startup_id: finalInput.startup_id,
-      investor_id: finalInput.investor_id,
-      amount_cspr: finalInput.amount_cspr,
-      contract_uref: "deploy-hash-simulated-casper-wallet"
-    })
-    .select("id")
-    .single();
-
-  if (roundError || !roundData) {
-    return { ok: false, error: roundError?.message || "Failed to create round." };
+  let key: string;
+  try {
+    key = adminKey();
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "ADMIN_API_KEY is not configured." };
   }
 
-  // Insert milestones
-  const milestonesToInsert = finalInput.milestones.map((m) => ({
-    funding_round_id: roundData.id,
-    threshold_score: m.threshold_score,
-    release_percent: m.release_percent,
-    released: false
-  }));
+  // Include the wallet signature in the request if available
+  const payload = { ...finalInput };
 
-  const { error: msError } = await supabase
-    .from("milestones")
-    .insert(milestonesToInsert);
+  const response = await fetch(`${backendUrl}/api/launchpad/rounds`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Admin-Key": key,
+    },
+    body: JSON.stringify(payload),
+    cache: "no-store",
+  });
 
-  if (msError) {
-    // Ideally rollback round creation here, but ignoring for prototype
-    return { ok: false, error: msError.message };
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return { ok: false, error: result.detail || "Failed to create round." };
   }
 
   revalidatePath("/dashboard/rounds");
   revalidatePath("/dashboard");
-  return { ok: true, data: { id: roundData.id } };
+  return { ok: true, data: { id: result.id } };
 }
 
 export async function evaluateRound(roundId: string): Promise<ActionResult<{ released: boolean; message?: string }>> {
