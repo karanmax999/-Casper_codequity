@@ -97,7 +97,7 @@ const config: Config = {
       },
       animation: {
         glitch: 'glitch 0.2s ease-in-out infinite alternate',
-      }
+      },
       fontSize: {
         "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
         "headline-xl": ["64px", { "lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
