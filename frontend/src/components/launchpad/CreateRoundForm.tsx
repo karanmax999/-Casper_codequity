@@ -70,7 +70,8 @@ export function CreateRoundForm({
             pubKey = await provider.getActivePublicKey();
 
             // Construct a real Casper Deploy using casper-js-sdk
-            const { DeployUtil, CLPublicKey, CasperServiceByJsonRPC } = require("casper-js-sdk");
+            const casperSDK = require("casper-js-sdk");
+            const { DeployUtil, CLPublicKey, CasperServiceByJsonRPC } = (casperSDK.default || casperSDK);
             
             const senderKey = CLPublicKey.fromHex(pubKey!);
             

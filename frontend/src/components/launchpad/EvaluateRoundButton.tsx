@@ -40,7 +40,8 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         }
 
         const pubKey = await provider.getActivePublicKey();
-        const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey, CasperServiceByJsonRPC } = require("casper-js-sdk");
+        const casperSDK = require("casper-js-sdk");
+        const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey, CasperServiceByJsonRPC } = (casperSDK.default || casperSDK);
 
         const senderKey = CLPublicKey.fromHex(pubKey!);
         const recipientKey = CLPublicKey.fromHex(data.startup_pubkey);
