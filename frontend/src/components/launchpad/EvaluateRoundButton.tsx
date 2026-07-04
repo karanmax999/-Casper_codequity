@@ -40,7 +40,7 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         }
 
         const pubKey = await provider.getActivePublicKey();
-        const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey } = await import("casper-js-sdk");
+        const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey } = (await import("casper-js-sdk")) as any;
 
         const senderKey = CLPublicKey.fromHex(pubKey!);
         const recipientKey = CLPublicKey.fromHex(data.startup_pubkey);
@@ -77,7 +77,7 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         const signedDeployJson = JSON.parse(signResult.signature);
         const signedDeploy = DeployUtil.deployFromJson(signedDeployJson).unwrap();
         // Broadcast to the Casper network
-        const { CasperServiceByJsonRPC } = await import("casper-js-sdk");
+        const { CasperServiceByJsonRPC } = (await import("casper-js-sdk")) as any;
         const rpcUrl = "https://node.testnet.casper.network/rpc";
         const client = new CasperServiceByJsonRPC(rpcUrl);
         
