@@ -24,6 +24,7 @@ import { isAdmin } from "@/lib/admin";
 function getActiveSection(pathname: string): string {
   if (pathname.startsWith("/dashboard/profile")) return "profile";
   if (pathname.startsWith("/dashboard/admin/rounds/create")) return "create";
+  if (pathname.startsWith("/dashboard/admin/investors")) return "admin-investors";
   if (pathname.startsWith("/dashboard/transactions")) return "transactions";
   if (pathname.startsWith("/dashboard/startups")) return "startups";
   if (pathname.startsWith("/dashboard/investors")) return "investors";
@@ -60,6 +61,7 @@ export function IconRail() {
     { id: "dashboard", icon: LayoutDashboard, href: "/dashboard", label: "Dashboard" },
     { id: "create", icon: SquarePlus, href: "/dashboard/admin/rounds/create", label: "Create Round" },
     { id: "transactions", icon: RadioTower, href: "/dashboard/transactions", label: "Transactions" },
+    { id: "admin-investors", icon: Users, href: "/dashboard/admin/investors", label: "Investors" },
   ];
 
   const clientNavItems = [

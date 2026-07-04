@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/admin";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "./ProfileForm";
+import { AdminProfile } from "./AdminProfile";
 import { WalletCards } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +21,13 @@ export default async function ProfilePage() {
     .eq("user_id", user.id)
     .maybeSingle();
 
+  const isUserAdmin = isAdmin(user.email);
+
   if (!investor) {
+    if (isUserAdmin) {
+      return <AdminProfile email={user.email || ""} />;
+    }
+
     return (
       <div className="space-y-8 max-w-4xl mx-auto py-2">
         <div className="rounded border border-[#1F1F1F] bg-[#0A0A0A] p-12 text-center">

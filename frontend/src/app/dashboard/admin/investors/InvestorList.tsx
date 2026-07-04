@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { approveInvestor, rejectInvestor } from "@/actions";
+import { useRouter } from "next/navigation";
 import { Check, X, Loader2 } from "lucide-react";
 
 export function InvestorList({ initialInvestors }: { initialInvestors: any[] }) {
   const [tab, setTab] = useState<"pending" | "approved" | "all">("pending");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const router = useRouter();
 
   const filtered = initialInvestors.filter(inv => {
     if (tab === "pending") return !inv.approved;
@@ -16,13 +18,23 @@ export function InvestorList({ initialInvestors }: { initialInvestors: any[] }) 
 
   const handleApprove = async (id: string) => {
     setLoadingId(id);
-    await approveInvestor(id);
+    const res = await approveInvestor(id);
+    if (res.ok) {
+      router.refresh();
+    } else {
+      console.error(res.error);
+    }
     setLoadingId(null);
   };
 
   const handleReject = async (id: string) => {
     setLoadingId(id);
-    await rejectInvestor(id);
+    const res = await rejectInvestor(id);
+    if (res.ok) {
+      router.refresh();
+    } else {
+      console.error(res.error);
+    }
     setLoadingId(null);
   };
 

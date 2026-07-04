@@ -67,14 +67,15 @@ export async function approveInvestor(investorId: string): Promise<ActionResult<
     return { ok: false, error: "Unauthorized" };
   }
 
-  const { error } = await supabase
+  const { error, data } = await supabase
     .from("investors")
     .update({
       approved: true,
       approved_at: new Date().toISOString(),
       reviewed_by: user.id
     })
-    .eq("id", investorId);
+    .eq("id", investorId)
+    .select();
 
   if (error) {
     return { ok: false, error: error.message };

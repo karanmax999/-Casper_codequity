@@ -77,23 +77,48 @@ export function RegistrationWizard() {
 
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-6 text-center p-12">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-container/20 border border-primary-container/50 shadow-[0_0_20px_rgba(0,255,128,0.2)]">
-          <CheckCircle2 className="h-8 w-8 text-primary-container" />
-        </div>
-        <div>
-          <h2 className="text-headline-lg-mobile md:text-headline-lg text-on-surface">Application Received</h2>
-          <p className="mt-4 text-data-mono text-on-surface-variant max-w-md mx-auto">
-            We'll review your application within 24 hours. In the meantime, you can browse startups on the platform.
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="flex flex-col items-center justify-center space-y-8 text-center py-16 px-8 relative overflow-hidden"
+      >
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#45f798]/10 rounded-full blur-[100px] pointer-events-none" />
+        
+        <motion.div 
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+          className="relative z-10 flex flex-col items-center gap-4"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <span className="material-symbols-outlined text-[#45f798] text-2xl drop-shadow-[0_0_15px_rgba(69,247,152,0.8)]">token</span>
+            <span className="text-xl font-bold font-space-grotesk text-white tracking-tighter">CodeQuity</span>
+          </div>
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#45f798]/10 border border-[#45f798]/50 shadow-[0_0_40px_rgba(69,247,152,0.3)] backdrop-blur-sm">
+            <CheckCircle2 className="h-12 w-12 text-[#45f798]" />
+          </div>
+        </motion.div>
+        
+        <div className="relative z-10 space-y-4">
+          <h2 className="text-3xl md:text-4xl font-space-grotesk font-bold text-white tracking-tight">
+            Application <span className="text-[#45f798] neon-text-glow">Received</span>
+          </h2>
+          <p className="text-zinc-400 font-mono text-sm max-w-md mx-auto leading-relaxed">
+            Your investor profile is now securely logged. We'll verify your credentials within 24 hours. In the meantime, you can explore the ecosystem.
           </p>
         </div>
-        <button
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => router.push("/dashboard")}
-          className="mt-6 inline-flex h-12 items-center justify-center rounded bg-surface-container border border-outline-variant/50 px-8 text-button-text text-on-surface uppercase tracking-wider hover:border-primary-container hover:text-primary-container transition-all"
+          className="relative z-10 mt-6 inline-flex h-14 items-center justify-center gap-3 rounded bg-[#45f798] px-10 text-xs font-bold text-black uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(69,247,152,0.4)] transition-all hover:bg-[#63ffab]"
         >
-          Go to Dashboard
-        </button>
-      </div>
+          Go to Command Center
+          <ArrowRight className="h-4 w-4" />
+        </motion.button>
+      </motion.div>
     );
   }
 
