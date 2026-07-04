@@ -2,12 +2,40 @@
 
 import { useState } from "react";
 import { updateInvestorProfile } from "@/actions";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Wallet } from "lucide-react";
 
 export function ProfileForm({ investor }: { investor: any }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [walletPubkey, setWalletPubkey] = useState(investor.wallet_pubkey || "");
+
+  const handleConnectWallet = async () => {
+    const casperProvider = (window as any).CasperWalletProvider;
+    if (!casperProvider) {
+      alert("Casper Wallet extension is not installed. Please install it to connect.");
+      window.open("https://casperwallet.io/download", "_blank");
+      return;
+    }
+
+    try {
+      const provider = casperProvider();
+      const isConnected = await provider.requestConnection();
+      if (isConnected) {
+        const activeKey = await provider.getActivePublicKey();
+        if (activeKey) {
+          setWalletPubkey(activeKey);
+        } else {
+          alert("Could not retrieve active public key. Please unlock your Casper Wallet.");
+        }
+      } else {
+        alert("Wallet connection request was rejected.");
+      }
+    } catch (err: any) {
+      console.error("Casper Wallet Error:", err);
+      alert(`Wallet Connection Error: ${err.message || err}`);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,13 +70,25 @@ export function ProfileForm({ investor }: { investor: any }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {!investor.wallet_pubkey && (
+      {!walletPubkey && (
         <div className="flex items-start gap-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-sm text-yellow-500">
           <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold">Missing Wallet Public Key</p>
             <p className="text-yellow-500/80 mt-1">
-              You must provide your Casper Testnet public key to participate in or create on-chain funding rounds.
+              You must connect your Casper Wallet to participate in or create on-chain funding rounds.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {walletPubkey && !investor.wallet_pubkey && (
+        <div className="flex items-start gap-3 rounded-lg border border-[#45f798]/30 bg-[#45f798]/5 p-4 text-sm text-[#45f798]">
+          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5 text-[#45f798]" />
+          <div>
+            <p className="font-semibold text-white">Casper Wallet Connected</p>
+            <p className="text-zinc-400 mt-1 text-xs">
+              Please click the <strong className="text-[#45f798] font-bold">Save Changes</strong> button below to persist your wallet link.
             </p>
           </div>
         </div>
@@ -169,18 +209,29 @@ export function ProfileForm({ investor }: { investor: any }) {
 
       <div className="space-y-2">
         <label htmlFor="wallet_pubkey" className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
-          Casper Wallet Public Key
+          Casper Wallet Link
         </label>
-        <input
-          id="wallet_pubkey"
-          name="wallet_pubkey"
-          type="text"
-          defaultValue={investor.wallet_pubkey || ""}
-          className="h-10 w-full rounded-sm border border-[#2A2A2A] bg-[#080808] px-3 text-sm font-mono text-white outline-none focus:border-[#45f798]/50"
-          placeholder="01..."
-        />
-        <p className="text-xs text-zinc-500">
-          Must be a valid Casper Testnet public key starting with 01 or 02.
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            id="wallet_pubkey"
+            name="wallet_pubkey"
+            type="text"
+            value={walletPubkey}
+            readOnly
+            className="h-10 flex-1 rounded-sm border border-[#2A2A2A] bg-[#080808]/50 px-3 text-xs font-mono text-zinc-400 outline-none cursor-not-allowed"
+            placeholder="No wallet connected"
+          />
+          <button
+            type="button"
+            onClick={handleConnectWallet}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-[#45f798]/50 bg-black/40 hover:bg-[#45f798]/10 px-4 text-xs font-bold text-[#45f798] transition-all cursor-pointer hover:border-[#45f798]"
+          >
+            <Wallet className="h-4 w-4" />
+            {walletPubkey ? "Reconnect Wallet" : "Connect Casper Wallet"}
+          </button>
+        </div>
+        <p className="text-[10px] text-zinc-500">
+          Connects via the Casper Wallet browser extension.
         </p>
       </div>
 
