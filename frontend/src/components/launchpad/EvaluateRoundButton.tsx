@@ -40,7 +40,11 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         }
 
         const pubKey = await provider.getActivePublicKey();
-        const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey } = (await import("casper-js-sdk")) as any;
+        const sdk = (await import("casper-js-sdk")) as any;
+        const DeployUtil = sdk.DeployUtil || sdk.default?.DeployUtil;
+        const RuntimeArgs = sdk.RuntimeArgs || sdk.default?.RuntimeArgs;
+        const CLValueBuilder = sdk.CLValueBuilder || sdk.default?.CLValueBuilder;
+        const CLPublicKey = sdk.CLPublicKey || sdk.default?.CLPublicKey;
 
         const senderKey = CLPublicKey.fromHex(pubKey!);
         const recipientKey = CLPublicKey.fromHex(data.startup_pubkey);
@@ -77,7 +81,8 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         const signedDeployJson = JSON.parse(signResult.signature);
         const signedDeploy = DeployUtil.deployFromJson(signedDeployJson).unwrap();
         // Broadcast to the Casper network
-        const { CasperServiceByJsonRPC } = (await import("casper-js-sdk")) as any;
+        const rpcSdk = (await import("casper-js-sdk")) as any;
+        const CasperServiceByJsonRPC = rpcSdk.CasperServiceByJsonRPC || rpcSdk.default?.CasperServiceByJsonRPC;
         const rpcUrl = "https://node.testnet.casper.network/rpc";
         const client = new CasperServiceByJsonRPC(rpcUrl);
         
