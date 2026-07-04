@@ -190,7 +190,36 @@ export async function createFundingRound(input: CreateLaunchpadRoundInput): Prom
   return { ok: true, data: { id: result.id } };
 }
 
-export async function evaluateRound(roundId: string): Promise<ActionResult<{ released: boolean; message?: string }>> {
+export async function getEvaluatePayload(roundId: string): Promise<ActionResult<any>> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Unauthorized" };
+
+  let key: string;
+  try {
+    key = adminKey();
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "ADMIN_API_KEY is not configured." };
+  }
+
+  // We reuse the evaluate endpoint but add a dry_run parameter
+  const response = await fetch(`${backendUrl}/api/launchpad/rounds/${roundId}/evaluate?dry_run=true`, {
+    method: "POST",
+    headers: {
+      "X-Admin-Key": key,
+    },
+    cache: "no-store",
+  });
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return { ok: false, error: result.detail || "Failed to fetch evaluation payload." };
+  }
+
+  return { ok: true, data: result };
+}
+
+export async function evaluateRound(roundId: string, deployHash?: string): Promise<ActionResult<{ released: boolean; message?: string }>> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Unauthorized" };
