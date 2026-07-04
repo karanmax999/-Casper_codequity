@@ -48,9 +48,18 @@ export async function updateInvestorProfile(input: any): Promise<ActionResult<vo
     return { ok: false, error: "Not authenticated" };
   }
 
+  const allowed = [
+    "name", "firm", "job_title", "website", "linkedin", "aum", "check_size",
+    "focus", "notes", "wallet_pubkey"
+  ];
+  
+  const updates = Object.keys(input)
+    .filter((k) => allowed.includes(k))
+    .reduce((acc, key) => ({ ...acc, [key]: input[key] }), {});
+
   const { error } = await supabase
     .from("investors")
-    .update(input)
+    .update(updates)
     .eq("user_id", user.id);
 
   if (error) {
