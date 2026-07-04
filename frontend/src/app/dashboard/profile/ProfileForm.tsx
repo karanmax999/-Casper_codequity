@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateInvestorProfile } from "@/actions";
 import { Loader2, AlertCircle, Wallet } from "lucide-react";
 
@@ -9,6 +9,30 @@ export function ProfileForm({ investor }: { investor: any }) {
   const [message, setMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [walletPubkey, setWalletPubkey] = useState(investor.wallet_pubkey || "");
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      const isDisconnected = localStorage.getItem("casper_wallet_disconnected") === "true";
+      if (isDisconnected) return;
+
+      const casperProvider = (window as any).CasperWalletProvider;
+      if (casperProvider) {
+        try {
+          const provider = casperProvider();
+          const connected = await provider.isConnected();
+          if (connected) {
+            const activeKey = await provider.getActivePublicKey();
+            if (activeKey) {
+              setWalletPubkey(activeKey);
+            }
+          }
+        } catch (err) {
+          console.error("Auto-connect check failed:", err);
+        }
+      }
+    };
+    checkConnection();
+  }, []);
 
   const handleConnectWallet = async () => {
     const casperProvider = (window as any).CasperWalletProvider;
@@ -25,6 +49,7 @@ export function ProfileForm({ investor }: { investor: any }) {
         const activeKey = await provider.getActivePublicKey();
         if (activeKey) {
           setWalletPubkey(activeKey);
+          localStorage.removeItem("casper_wallet_disconnected");
         } else {
           alert("Could not retrieve active public key. Please unlock your Casper Wallet.");
         }
@@ -35,6 +60,11 @@ export function ProfileForm({ investor }: { investor: any }) {
       console.error("Casper Wallet Error:", err);
       alert(`Wallet Connection Error: ${err.message || err}`);
     }
+  };
+
+  const handleDisconnectWallet = () => {
+    setWalletPubkey("");
+    localStorage.setItem("casper_wallet_disconnected", "true");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -221,14 +251,25 @@ export function ProfileForm({ investor }: { investor: any }) {
             className="h-10 flex-1 rounded-sm border border-[#2A2A2A] bg-[#080808]/50 px-3 text-xs font-mono text-zinc-400 outline-none cursor-not-allowed"
             placeholder="No wallet connected"
           />
-          <button
-            type="button"
-            onClick={handleConnectWallet}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-[#45f798]/50 bg-black/40 hover:bg-[#45f798]/10 px-4 text-xs font-bold text-[#45f798] transition-all cursor-pointer hover:border-[#45f798]"
-          >
-            <Wallet className="h-4 w-4" />
-            {walletPubkey ? "Reconnect Wallet" : "Connect Casper Wallet"}
-          </button>
+          {walletPubkey ? (
+            <button
+              type="button"
+              onClick={handleDisconnectWallet}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-red-500/50 bg-black/40 hover:bg-red-500/10 px-4 text-xs font-bold text-red-400 transition-all cursor-pointer hover:border-red-500 shrink-0"
+            >
+              <Wallet className="h-4 w-4" />
+              Disconnect Wallet
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleConnectWallet}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-[#45f798]/50 bg-black/40 hover:bg-[#45f798]/10 px-4 text-xs font-bold text-[#45f798] transition-all cursor-pointer hover:border-[#45f798] shrink-0"
+            >
+              <Wallet className="h-4 w-4" />
+              Connect Casper Wallet
+            </button>
+          )}
         </div>
         <p className="text-[10px] text-zinc-500">
           Connects via the Casper Wallet browser extension.
