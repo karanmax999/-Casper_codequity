@@ -54,28 +54,42 @@ export function CreateRoundForm({
 
           // 1. Trigger Casper Wallet Extension
           try {
-            const casperHelper = (window as any).casperlabsHelper;
-            if (!casperHelper) {
+            const casperProvider = (window as any).CasperWalletProvider;
+            if (!casperProvider) {
               setMessage("Please install the Casper Wallet browser extension to sign the payment.");
               return;
             }
 
+            const provider = casperProvider();
+
             // Request connection
-            const isConnected = await casperHelper.requestConnection();
+            const isConnected = await provider.requestConnection();
             if (!isConnected) {
               setMessage("Wallet connection rejected.");
               return;
             }
 
             // Get active public key
-            pubKey = await casperHelper.getActivePublicKey();
+            pubKey = await provider.getActivePublicKey();
+            if (!pubKey) {
+              setMessage("Could not retrieve active public key. Please unlock your Casper Wallet.");
+              return;
+            }
             
             // Sign a simple authorization message to simulate payment
             messageString = `Authorize CSPR deployment and payment for round creation.\nAmount: ${amount} CSPR\nStartup: ${startupId}`;
-            signature = await casperHelper.signMessage(messageString, pubKey);
+            
+            const signResult = await provider.signMessage(messageString, pubKey);
+            
+            if (signResult && typeof signResult === "object" && "cancelled" in signResult && signResult.cancelled) {
+              setMessage("Payment signature was cancelled.");
+              return;
+            }
+
+            signature = typeof signResult === "string" ? signResult : signResult?.signatureHex;
             
             if (!signature) {
-              setMessage("Payment signature was cancelled.");
+              setMessage("Payment signature was cancelled or failed.");
               return;
             }
           } catch (err: any) {
