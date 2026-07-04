@@ -70,9 +70,7 @@ export function CreateRoundForm({
             pubKey = await provider.getActivePublicKey();
 
             // Construct a real Casper Deploy using casper-js-sdk
-            const casperSDK = (await import("casper-js-sdk")) as any;
-            const DeployUtil = casperSDK.DeployUtil || casperSDK.default?.DeployUtil;
-            const CLPublicKey = casperSDK.CLPublicKey || casperSDK.default?.CLPublicKey;
+            const { DeployUtil, CLPublicKey, CasperServiceByJsonRPC } = require("casper-js-sdk");
             
             const senderKey = CLPublicKey.fromHex(pubKey!);
             
@@ -110,8 +108,6 @@ export function CreateRoundForm({
             const signedDeploy = DeployUtil.deployFromJson(signedDeployJson).unwrap();
             
             // Broadcast to the Casper network using the SDK
-            const rpcSdk = (await import("casper-js-sdk")) as any;
-            const CasperServiceByJsonRPC = rpcSdk.CasperServiceByJsonRPC || rpcSdk.default?.CasperServiceByJsonRPC;
             const rpcUrl = "https://node.testnet.casper.network/rpc"; // Casper Testnet public RPC
             const client = new CasperServiceByJsonRPC(rpcUrl);
             
