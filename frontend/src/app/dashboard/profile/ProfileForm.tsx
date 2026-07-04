@@ -2,13 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { updateInvestorProfile } from "@/actions";
-import { Loader2, AlertCircle, Wallet } from "lucide-react";
+import { Loader2, AlertCircle, Wallet, Copy, Check } from "lucide-react";
 
 export function ProfileForm({ investor }: { investor: any }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [walletPubkey, setWalletPubkey] = useState(investor.wallet_pubkey || "");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyAddress = async () => {
+    if (!walletPubkey) return;
+    try {
+      await navigator.clipboard.writeText(walletPubkey);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text:", err);
+    }
+  };
 
   useEffect(() => {
     // Instantly load cached wallet public key on mount to prevent reset on refresh
@@ -17,27 +29,38 @@ export function ProfileForm({ investor }: { investor: any }) {
       setWalletPubkey(cachedPubkey);
     }
 
-    const handleActiveKeyChanged = (event: any) => {
+    const handleActiveKeyChanged = async (event: any) => {
       const isDisconnected = localStorage.getItem("casper_wallet_disconnected") === "true";
       if (isDisconnected) return;
       if (event.detail && event.detail.activeKey) {
-        setWalletPubkey(event.detail.activeKey);
-        localStorage.setItem("casper_connected_pubkey", event.detail.activeKey);
+        const activeKey = event.detail.activeKey;
+        setWalletPubkey(activeKey);
+        localStorage.setItem("casper_connected_pubkey", activeKey);
+        if (activeKey !== investor.wallet_pubkey) {
+          await updateInvestorProfile({ wallet_pubkey: activeKey });
+        }
       }
     };
 
-    const handleConnected = (event: any) => {
+    const handleConnected = async (event: any) => {
       const isDisconnected = localStorage.getItem("casper_wallet_disconnected") === "true";
       if (isDisconnected) return;
       if (event.detail && event.detail.activeKey) {
-        setWalletPubkey(event.detail.activeKey);
-        localStorage.setItem("casper_connected_pubkey", event.detail.activeKey);
+        const activeKey = event.detail.activeKey;
+        setWalletPubkey(activeKey);
+        localStorage.setItem("casper_connected_pubkey", activeKey);
+        if (activeKey !== investor.wallet_pubkey) {
+          await updateInvestorProfile({ wallet_pubkey: activeKey });
+        }
       }
     };
 
-    const handleDisconnected = () => {
+    const handleDisconnected = async () => {
       setWalletPubkey("");
       localStorage.removeItem("casper_connected_pubkey");
+      if (investor.wallet_pubkey) {
+        await updateInvestorProfile({ wallet_pubkey: null });
+      }
     };
 
     // Register Casper Wallet custom event listeners
@@ -59,6 +82,9 @@ export function ProfileForm({ investor }: { investor: any }) {
             if (activeKey) {
               setWalletPubkey(activeKey);
               localStorage.setItem("casper_connected_pubkey", activeKey);
+              if (activeKey !== investor.wallet_pubkey) {
+                await updateInvestorProfile({ wallet_pubkey: activeKey });
+              }
             }
           }
         } catch (err) {
@@ -88,7 +114,7 @@ export function ProfileForm({ investor }: { investor: any }) {
       window.removeEventListener("casper-wallet:disconnected", handleDisconnected);
       clearInterval(interval);
     };
-  }, []);
+  }, [investor.wallet_pubkey, walletPubkey]);
 
   const handleConnectWallet = async () => {
     const casperProvider = (window as any).CasperWalletProvider;
@@ -107,6 +133,9 @@ export function ProfileForm({ investor }: { investor: any }) {
           setWalletPubkey(activeKey);
           localStorage.setItem("casper_connected_pubkey", activeKey);
           localStorage.removeItem("casper_wallet_disconnected");
+          
+          // Auto-persist to DB immediately
+          await updateInvestorProfile({ wallet_pubkey: activeKey });
         } else {
           alert("Could not retrieve active public key. Please unlock your Casper Wallet.");
         }
@@ -119,10 +148,13 @@ export function ProfileForm({ investor }: { investor: any }) {
     }
   };
 
-  const handleDisconnectWallet = () => {
+  const handleDisconnectWallet = async () => {
     setWalletPubkey("");
     localStorage.removeItem("casper_connected_pubkey");
     localStorage.setItem("casper_wallet_disconnected", "true");
+    
+    // Auto-persist to DB immediately
+    await updateInvestorProfile({ wallet_pubkey: null });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -170,13 +202,17 @@ export function ProfileForm({ investor }: { investor: any }) {
         </div>
       )}
 
-      {walletPubkey && !investor.wallet_pubkey && (
+      {walletPubkey && (
         <div className="flex items-start gap-3 rounded-lg border border-[#45f798]/30 bg-[#45f798]/5 p-4 text-sm text-[#45f798]">
           <AlertCircle className="h-5 w-5 shrink-0 mt-0.5 text-[#45f798]" />
           <div>
-            <p className="font-semibold text-white">Casper Wallet Connected</p>
+            <p className="font-semibold text-white">
+              {investor.wallet_pubkey === walletPubkey ? "Casper Wallet Linked" : "Linking Casper Wallet..."}
+            </p>
             <p className="text-zinc-400 mt-1 text-xs">
-              Please click the <strong className="text-[#45f798] font-bold">Save Changes</strong> button below to persist your wallet link.
+              {investor.wallet_pubkey === walletPubkey 
+                ? "Your Casper Wallet is successfully linked and saved to the database."
+                : "Persisting your wallet public key to the database..."}
             </p>
           </div>
         </div>
@@ -300,15 +336,27 @@ export function ProfileForm({ investor }: { investor: any }) {
           Casper Wallet Link
         </label>
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            id="wallet_pubkey"
-            name="wallet_pubkey"
-            type="text"
-            value={walletPubkey}
-            readOnly
-            className="h-10 flex-1 rounded-sm border border-[#2A2A2A] bg-[#080808]/50 px-3 text-xs font-mono text-zinc-400 outline-none cursor-not-allowed"
-            placeholder="No wallet connected"
-          />
+          <div className="relative flex-1">
+            <input
+              id="wallet_pubkey"
+              name="wallet_pubkey"
+              type="text"
+              value={walletPubkey}
+              readOnly
+              className="h-10 w-full rounded-sm border border-[#2A2A2A] bg-[#080808]/50 pl-3 pr-10 text-xs font-mono text-zinc-400 outline-none cursor-not-allowed"
+              placeholder="No wallet connected"
+            />
+            {walletPubkey && (
+              <button
+                type="button"
+                onClick={handleCopyAddress}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                title="Copy Address"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-[#45f798]" /> : <Copy className="h-3.5 w-3.5" />}
+              </button>
+            )}
+          </div>
           {walletPubkey ? (
             <button
               type="button"
