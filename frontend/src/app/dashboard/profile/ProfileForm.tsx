@@ -11,6 +11,31 @@ export function ProfileForm({ investor }: { investor: any }) {
   const [walletPubkey, setWalletPubkey] = useState(investor.wallet_pubkey || "");
 
   useEffect(() => {
+    const handleActiveKeyChanged = (event: any) => {
+      const isDisconnected = localStorage.getItem("casper_wallet_disconnected") === "true";
+      if (isDisconnected) return;
+      if (event.detail && event.detail.activeKey) {
+        setWalletPubkey(event.detail.activeKey);
+      }
+    };
+
+    const handleConnected = (event: any) => {
+      const isDisconnected = localStorage.getItem("casper_wallet_disconnected") === "true";
+      if (isDisconnected) return;
+      if (event.detail && event.detail.activeKey) {
+        setWalletPubkey(event.detail.activeKey);
+      }
+    };
+
+    const handleDisconnected = () => {
+      setWalletPubkey("");
+    };
+
+    // Register Casper Wallet custom event listeners
+    window.addEventListener("casper-wallet:activeKeyChanged", handleActiveKeyChanged);
+    window.addEventListener("casper-wallet:connected", handleConnected);
+    window.addEventListener("casper-wallet:disconnected", handleDisconnected);
+
     const checkConnection = async () => {
       const isDisconnected = localStorage.getItem("casper_wallet_disconnected") === "true";
       if (isDisconnected) return;
@@ -31,7 +56,28 @@ export function ProfileForm({ investor }: { investor: any }) {
         }
       }
     };
+
+    // Immediate check
     checkConnection();
+
+    // Poll for the provider in case it is injected asynchronously after mount
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if ((window as any).CasperWalletProvider) {
+        checkConnection();
+        clearInterval(interval);
+      } else if (attempts >= 15) {
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => {
+      window.removeEventListener("casper-wallet:activeKeyChanged", handleActiveKeyChanged);
+      window.removeEventListener("casper-wallet:connected", handleConnected);
+      window.removeEventListener("casper-wallet:disconnected", handleDisconnected);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleConnectWallet = async () => {
