@@ -54,7 +54,7 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         const args = RuntimeArgs.fromMap({
           milestone_index: CLValueBuilder.u8(data.milestone_index),
           current_score: CLValueBuilder.u16(data.current_score),
-          recipient: recipientKey,
+          recipient: CLValueBuilder.key(recipientKey),
         });
 
         // Use the raw hash without the "hash-" prefix
