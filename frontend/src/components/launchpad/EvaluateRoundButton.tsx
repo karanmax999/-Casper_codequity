@@ -73,7 +73,11 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         const signedDeploy = signed.deploy;
         
         setMessage("Broadcasting signed release through backend...");
-        const broadcastRes = await broadcastCasperDeploy(DeployUtil.deployToJson(signedDeploy), true);
+        const broadcastRes = await broadcastCasperDeploy(DeployUtil.deployToJson(signedDeploy), {
+          wait: true,
+          requireFinalized: true,
+          timeoutSeconds: 300,
+        });
         if (!broadcastRes.ok) {
           setMessage(`Casper RPC rejected the release deploy: ${broadcastRes.error}`);
           return;

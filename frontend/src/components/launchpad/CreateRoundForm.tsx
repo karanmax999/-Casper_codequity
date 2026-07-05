@@ -118,7 +118,9 @@ export function CreateRoundForm({
             pubKey = signed.publicKeyHex;
             
             setMessage("Broadcasting signed payment through backend...");
-            const broadcastRes = await broadcastCasperDeploy(DeployUtil.deployToJson(signedDeploy), true);
+            const broadcastRes = await broadcastCasperDeploy(DeployUtil.deployToJson(signedDeploy), {
+              wait: false,
+            });
             if (!broadcastRes.ok) {
               setMessage(`Casper RPC rejected the payment deploy: ${broadcastRes.error}`);
               return;
@@ -129,7 +131,7 @@ export function CreateRoundForm({
             signature = signed.signatureHex;
             messageString = acceptedDeployHash;
             
-            setMessage(`Payment confirmed on Casper Testnet (${shortHash(acceptedDeployHash)}). Creating round...`);
+            setMessage(`Payment deploy accepted on Casper Testnet (${shortHash(acceptedDeployHash)}). Creating round...`);
 
           } catch (err: any) {
             console.error("Casper wallet error:", err);

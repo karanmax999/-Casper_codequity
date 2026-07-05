@@ -192,7 +192,7 @@ export async function createFundingRound(input: CreateLaunchpadRoundInput): Prom
 
 export async function broadcastCasperDeploy(
   deployJson: Record<string, any>,
-  wait = true,
+  options: { wait?: boolean; requireFinalized?: boolean; timeoutSeconds?: number } = {},
 ): Promise<ActionResult<{ deploy_hash: string; status: "pending" | "success" }>> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -213,8 +213,8 @@ export async function broadcastCasperDeploy(
     },
     body: JSON.stringify({
       deploy_json: deployJson,
-      wait,
-      timeout_seconds: 300,
+      wait: options.wait ?? true,
+      timeout_seconds: options.timeoutSeconds ?? 300,
     }),
     cache: "no-store",
   });
@@ -224,7 +224,11 @@ export async function broadcastCasperDeploy(
     return { ok: false, error: result.detail || "Casper deploy broadcast failed." };
   }
 
-  if (result.status !== "success") {
+  if (!result.deploy_hash) {
+    return { ok: false, error: "Casper RPC did not return a deploy hash." };
+  }
+
+  if (options.requireFinalized && result.status !== "success") {
     return {
       ok: false,
       error: `Casper deploy ${result.deploy_hash || ""} was accepted but not finalized yet. Please retry after it appears on the testnet explorer.`,
