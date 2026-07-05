@@ -214,7 +214,7 @@ export async function broadcastCasperDeploy(
     body: JSON.stringify({
       deploy_json: deployJson,
       wait,
-      timeout_seconds: 180,
+      timeout_seconds: 300,
     }),
     cache: "no-store",
   });
