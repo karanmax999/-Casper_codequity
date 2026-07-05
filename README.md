@@ -11,7 +11,7 @@
   [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-  [**Launchpad**](https://launchpad.codequity.live/) • [**Documentation**](#getting-started) • [**Architecture**](#technical-architecture--deep-dive)
+  [**Launchpad**](https://launchpad.codequity.live/) • [**Documentation**](#getting-started) • [**Architecture**](#system-architecture-flow)
 </div>
 
 ---
