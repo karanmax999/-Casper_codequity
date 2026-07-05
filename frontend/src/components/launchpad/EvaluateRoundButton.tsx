@@ -75,8 +75,16 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
           return;
         }
 
-        const signedDeployJson = JSON.parse(signResult.signature);
-        const signedDeploy = DeployUtil.deployFromJson(signedDeployJson).unwrap();
+        let signatureHex = signResult.signature;
+        if (typeof signatureHex !== "string") {
+          signatureHex = Buffer.from(signatureHex).toString("hex");
+        }
+        
+        deployJson.deploy.approvals.push({
+          signer: pubKey,
+          signature: signatureHex
+        });
+        const signedDeploy = DeployUtil.deployFromJson(deployJson).unwrap();
         const rpcUrl = "https://node.testnet.casper.network/rpc";
         const client = new CasperServiceByJsonRPC(rpcUrl);
         

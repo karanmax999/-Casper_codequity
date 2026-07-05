@@ -105,8 +105,16 @@ export function CreateRoundForm({
               return;
             }
             
-            const signedDeployJson = JSON.parse(signResult.signature);
-            const signedDeploy = DeployUtil.deployFromJson(signedDeployJson).unwrap();
+            let signatureHex = signResult.signature;
+            if (typeof signatureHex !== "string") {
+              signatureHex = Buffer.from(signatureHex).toString("hex");
+            }
+            
+            deployJson.deploy.approvals.push({
+              signer: pubKey,
+              signature: signatureHex
+            });
+            const signedDeploy = DeployUtil.deployFromJson(deployJson).unwrap();
             
             // Broadcast to the Casper network using the SDK
             const rpcUrl = "https://node.testnet.casper.network/rpc"; // Casper Testnet public RPC
