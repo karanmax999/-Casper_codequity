@@ -19,7 +19,7 @@ export default async function RoundDetailPage({ params }: PageProps) {
   const releasedCount = milestones.filter((milestone) => milestone.released_at).length;
   const nextMilestone = [...milestones].sort((a, b) => a.milestone_index - b.milestone_index).find((milestone) => !milestone.released_at);
   const ready = nextMilestone ? currentScore >= nextMilestone.threshold_score : false;
-  const escrowHref = escrowContractHref(round.escrow_contract_uref);
+  const escrowReference = escrowReferenceFor(round.escrow_contract_uref);
   const safeMintHref = deployHref(round.safe_nft_mint_hash);
 
   return (
@@ -73,7 +73,7 @@ export default async function RoundDetailPage({ params }: PageProps) {
             Release control
           </div>
           <p className="mt-3 text-sm leading-6 text-zinc-400">
-            Evaluate the current startup score against unreleased milestones. Casper release wiring will replace the placeholder tx path here.
+            Evaluate the current startup score against unreleased milestones and authorize the matching Casper release transaction.
           </p>
           <div className="mt-5">
             <EvaluateRoundButton roundId={round.id} />
@@ -87,9 +87,9 @@ export default async function RoundDetailPage({ params }: PageProps) {
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">On-chain references</div>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
           <Reference 
-            label="Escrow contract" 
-            value={escrowHref ? round.escrow_contract_uref : "Not configured"}
-            href={escrowHref}
+            label={escrowReference.label}
+            value={escrowReference.value}
+            href={escrowReference.href}
           />
           <Reference 
             label="SAFE NFT mint" 
@@ -130,12 +130,35 @@ function formatNumber(value: number) {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(value);
 }
 
-function escrowContractHref(value?: string | null) {
-  if (!value || value.toLowerCase() === "hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765") {
-    return undefined;
+function escrowReferenceFor(value?: string | null) {
+  const placeholderHash = "hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765";
+  const normalized = value?.trim() || "";
+
+  if (normalized && normalized.toLowerCase() !== placeholderHash && /^hash-[\da-f]{64}$/i.test(normalized)) {
+    return {
+      label: "Escrow contract",
+      value: normalized,
+      href: `https://testnet.cspr.live/contract/${normalized}`,
+    };
   }
 
-  return /^hash-[\da-f]{64}$/i.test(value) ? `https://testnet.cspr.live/contract/${value}` : undefined;
+  const accountPubkey = normalized.startsWith("account-")
+    ? normalized.slice("account-".length)
+    : process.env.NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY?.trim() || "";
+
+  if (/^(?:01[\da-f]{64}|02[\da-f]{66})$/i.test(accountPubkey)) {
+    return {
+      label: "Escrow account",
+      value: accountPubkey,
+      href: `https://testnet.cspr.live/account/${accountPubkey}`,
+    };
+  }
+
+  return {
+    label: "Escrow account",
+    value: "Not configured",
+    href: undefined,
+  };
 }
 
 function deployHref(value?: string | null) {
