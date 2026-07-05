@@ -28,6 +28,8 @@ CodeQuity introduces the **Threshold Release Engine** and the **Intelligence Lay
 
 Code is truth. When you ship, you get paid.
 
+![CodeQuity Platform](./frontend/public/ss1.png)
+
 ---
 
 ## 2. Technical Architecture & Deep Dive
