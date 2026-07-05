@@ -50,33 +50,6 @@ const featureCards = [
   },
 ];
 
-const timeline = [
-  {
-    step: "01",
-    icon: TerminalSquare,
-    title: "Define the Deal",
-    copy: "Founders and investors lock in a funding round, defining the exact traction thresholds that trigger capital release.",
-  },
-  {
-    step: "02",
-    icon: Network,
-    title: "Prove the Work",
-    copy: "Founders build. CodeQuity monitors GitHub, market signals, and on-chain data to objectively score momentum.",
-  },
-  {
-    step: "03",
-    icon: FileCheck2,
-    title: "Automate the Payout",
-    copy: "No red tape. When the score hits the threshold, Casper automatically releases the funds.",
-  },
-  {
-    step: "04",
-    icon: Scale,
-    title: "Total Alignment",
-    copy: "Founders keep their equity until they prove their worth. Investors keep their capital until traction is real.",
-  },
-];
-
 export default function LandingPage() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#020504] text-white">
@@ -89,6 +62,9 @@ export default function LandingPage() {
           </div>
         </Link>
         <div className="flex items-center gap-3">
+          <Link href="/how-it-works" className="hidden text-xs font-semibold text-zinc-300 hover:text-white sm:inline">
+            How It Works
+          </Link>
           <Link href="/sign-in" className="hidden text-xs font-semibold text-zinc-300 hover:text-white sm:inline">
             Log in
           </Link>
@@ -178,36 +154,6 @@ export default function LandingPage() {
         <InvestorSection />
 
         <IntelligenceLayer />
-
-        <section className="border-b border-[#123626] bg-[#020504] px-5 py-24 md:px-8">
-          <div className="mx-auto max-w-4xl">
-            <h2 className="font-space-grotesk text-center text-3xl font-black text-white md:text-5xl">How it works</h2>
-            <div className="mt-16 overflow-hidden rounded-md border border-white/10 bg-[#0a1110] font-mono text-sm shadow-2xl">
-              <div className="flex items-center gap-2 border-b border-white/5 bg-white/5 px-4 py-3">
-                <div className="h-3 w-3 rounded-full bg-red-500/80" />
-                <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
-                <div className="h-3 w-3 rounded-full bg-green-500/80" />
-                <span className="ml-4 text-xs text-zinc-500">CodeQuity_Smart_Contract.ts</span>
-              </div>
-              <div className="p-6 md:p-8 space-y-8 text-zinc-300">
-                {timeline.map((item, index) => (
-                  <div key={item.title} className="group flex gap-4 transition-colors hover:text-white">
-                    <div className="text-zinc-600 select-none">{(index + 1).toString().padStart(2, '0')}</div>
-                    <div>
-                      <div className="text-electric-blue">
-                        <span className="text-cyber-purple">function</span> {item.title.replace(/\s+/g, '_')}(): void {'{'}
-                      </div>
-                      <div className="pl-4 text-zinc-400 mt-2">
-                        <span className="text-zinc-600">//</span> {item.copy}
-                      </div>
-                      <div className="text-electric-blue mt-2">{'}'}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
 
         <section className="bg-[#020504] px-5 py-20 md:px-8">
           <div className="mx-auto max-w-5xl text-center">
