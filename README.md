@@ -38,7 +38,10 @@ CodeQuity operates at the bleeding edge of agentic AI and distributed ledger tec
 The core of our evaluation logic is the Intelligence Layer. It acts as an aggressive, unbiased data aggregator. It compresses multi-source signals (GitHub velocity, API integrations, on-chain activity, and market dynamics) into a single deterministic integer: **The CodeQuity Traction Score (0-100)**. 
 
 ### Smart Contract Integration (The Threshold Engine)
-We utilize the **Casper Network** to secure capital. Escrow isn't handled by a bank; it is handled by trustless, upgradeable smart contracts written in Odra (Rust). 
+We utilize the **Casper Network** to secure capital and tokenize agreements. Escrow isn't handled by a bank; it is handled by trustless, upgradeable smart contracts written in Odra (Rust). 
+
+Furthermore, every funding agreement is tokenized as a **SAFE NFT**. The terms of the agreement are dynamically generated, permanently stored on the decentralized **IPFS** network via Pinata, and cryptographically bound to the NFT metadata on the Casper blockchain. 
+
 When the Intelligence Layer verifies that a startup has hit a milestone threshold, it generates cryptographic "Proof-of-Traction" evidence. This signed payload is broadcasted to the Casper RPC, instantly triggering the automated release of CSPR directly to the founder's wallet.
 
 ### System Architecture Flow
@@ -48,12 +51,16 @@ sequenceDiagram
     participant F as Founder (GitHub)
     participant IL as Intelligence Layer (AI)
     participant DB as CodeQuity Supabase
+    participant IPFS as IPFS (Pinata)
     participant SC as Casper Smart Contract
     participant INV as Investor Wallet
 
-    Note over F,INV: Phase 1: Capital Commitment
+    Note over F,INV: Phase 1: Capital Commitment & Agreement
     INV->>SC: Lock CSPR in EscrowVault
-    SC-->>DB: Record Funding Round Created
+    IL->>IPFS: Pin SAFE Terms (JSON)
+    IPFS-->>IL: Return IPFS Hash (ipfs://Qm...)
+    IL->>SC: Mint SAFE NFT with IPFS Hash
+    SC-->>DB: Record Funding Round & Mint Hash
     
     Note over F,INV: Phase 2: Execution & Traction
     F->>IL: Push Code / Deploy to Testnet
@@ -72,6 +79,7 @@ sequenceDiagram
 ## 3. Key Features
 
 - **Automated Milestone Settlement**: Removing human friction from capital deployment. Once a threshold is set, the funds are cryptographically bound to the startup's execution. No board meetings. No delays.
+- **Decentralized SAFE Agreements**: Every investment is backed by an on-chain SAFE NFT on the Casper network, with the deal terms permanently pinned to IPFS to guarantee immutability.
 - **Audit-Ready Evidence**: Every release is backed by immutable, on-chain evidence. Investors can track the exact block, hash, and cryptographic signature that justified the release of their capital.
 - **AI-Driven Deal Sourcing**: Objectively identifying winners before they hit consensus. Our engine strips away the narrative to find the teams that are actually shipping robust, secure code.
 - **Wallet-Native Transfers**: Optional bypass of heavy smart contracts. Investors can authorize direct P2P milestone transfers from their Casper Wallet, reducing friction while maintaining programmatic scoring logic.
