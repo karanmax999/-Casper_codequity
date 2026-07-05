@@ -2,14 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { RadioTower } from "lucide-react";
-import { getEvaluatePayload, evaluateRound } from "@/actions";
+import { broadcastCasperDeploy, getEvaluatePayload, evaluateRound } from "@/actions";
 import {
   CASPER_CHAIN_NAME,
-  CASPER_RPC_URL,
-  formatCasperRpcError,
-  getAcceptedDeployHash,
   getConnectedCasperPublicKey,
-  getDeployFailureMessage,
   hexToBytes,
   isValidCasperContractHash,
   shortHash,
@@ -44,7 +40,7 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
 
         // 2. Request Casper Wallet Signature
         const casperSDK = require("casper-js-sdk");
-        const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey, CasperServiceByJsonRPC } = (casperSDK.default || casperSDK);
+        const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey } = (casperSDK.default || casperSDK);
 
         const pubKey = await getConnectedCasperPublicKey();
         const senderKey = CLPublicKey.fromHex(pubKey!);
@@ -75,36 +71,18 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
           pubKey,
         );
         const signedDeploy = signed.deploy;
-        const client = new CasperServiceByJsonRPC(CASPER_RPC_URL);
         
-        setMessage("Broadcasting release to Casper Testnet...");
-        let deployHash = signed.deployHashHex;
-        try {
-          const result = await client.deploy(signedDeploy, { checkApproval: true });
-          deployHash = getAcceptedDeployHash(result, signed.deployHashHex);
-          console.log("Broadcast successful, release deploy hash:", deployHash);
-        } catch (broadcastErr: any) {
-          console.error("Casper release deploy broadcast failed:", broadcastErr);
-          setMessage(`Casper RPC rejected the release deploy: ${formatCasperRpcError(broadcastErr)}`);
+        setMessage("Broadcasting signed release through backend...");
+        const broadcastRes = await broadcastCasperDeploy(DeployUtil.deployToJson(signedDeploy), true);
+        if (!broadcastRes.ok) {
+          setMessage(`Casper RPC rejected the release deploy: ${broadcastRes.error}`);
           return;
         }
 
-        setMessage(`Release deploy accepted (${shortHash(deployHash)}). Waiting for Casper finalization...`);
-        try {
-          const deployInfo = await client.waitForDeploy(deployHash, 120000);
-          const failure = getDeployFailureMessage(deployInfo);
-          if (failure) {
-            setMessage(`Casper release deploy failed: ${failure}`);
-            return;
-          }
-        } catch (waitErr: any) {
-          console.error("Casper release deploy finalization failed:", waitErr);
-          setMessage(`Could not confirm release deploy execution: ${formatCasperRpcError(waitErr)}`);
-          return;
-        }
+        const deployHash = broadcastRes.data.deploy_hash || signed.deployHashHex;
+        setMessage(`Release confirmed on Casper Testnet (${shortHash(deployHash)}). Finalizing backend record...`);
 
         // 3. Submit deploy hash to backend to finalize release
-        setMessage("Finalizing release on backend...");
         const finalRes = await evaluateRound(roundId, deployHash);
         if (!finalRes.ok) {
           setMessage(finalRes.error);

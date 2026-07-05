@@ -190,6 +190,50 @@ export async function createFundingRound(input: CreateLaunchpadRoundInput): Prom
   return { ok: true, data: { id: result.id } };
 }
 
+export async function broadcastCasperDeploy(
+  deployJson: Record<string, any>,
+  wait = true,
+): Promise<ActionResult<{ deploy_hash: string; status: "pending" | "success" }>> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Unauthorized" };
+
+  let key: string;
+  try {
+    key = adminKey();
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "ADMIN_API_KEY is not configured." };
+  }
+
+  const response = await fetch(`${backendUrl}/api/launchpad/casper/deploy`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Admin-Key": key,
+    },
+    body: JSON.stringify({
+      deploy_json: deployJson,
+      wait,
+      timeout_seconds: 180,
+    }),
+    cache: "no-store",
+  });
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return { ok: false, error: result.detail || "Casper deploy broadcast failed." };
+  }
+
+  if (result.status !== "success") {
+    return {
+      ok: false,
+      error: `Casper deploy ${result.deploy_hash || ""} was accepted but not finalized yet. Please retry after it appears on the testnet explorer.`,
+    };
+  }
+
+  return { ok: true, data: result };
+}
+
 export async function getEvaluatePayload(roundId: string): Promise<ActionResult<any>> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

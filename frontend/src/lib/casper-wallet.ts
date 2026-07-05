@@ -8,8 +8,6 @@ type CasperDeploySigningResult = {
 };
 
 export const CASPER_CHAIN_NAME = process.env.NEXT_PUBLIC_CASPER_CHAIN_NAME || "casper-test";
-export const CASPER_RPC_URL =
-  process.env.NEXT_PUBLIC_CASPER_RPC_URL || "https://node.testnet.casper.network/rpc";
 export const CASPER_ESCROW_PUBLIC_KEY =
   process.env.NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY?.trim() || "";
 
@@ -77,46 +75,6 @@ export function isValidCasperPublicKey(value?: string | null): value is string {
 
 export function isValidCasperContractHash(value?: string | null): value is string {
   return /^hash-[\da-f]{64}$/i.test(value?.trim() || "");
-}
-
-export function getAcceptedDeployHash(result: any, fallbackHash: string) {
-  if (typeof result === "string" && result) {
-    return result;
-  }
-
-  if (typeof result?.deploy_hash === "string" && result.deploy_hash) {
-    return result.deploy_hash;
-  }
-
-  if (typeof result?.result?.deploy_hash === "string" && result.result.deploy_hash) {
-    return result.result.deploy_hash;
-  }
-
-  return fallbackHash;
-}
-
-export function getDeployFailureMessage(deployInfo: any) {
-  const executionResults = deployInfo?.execution_results || [];
-  for (const executionResult of executionResults) {
-    const failure = executionResult?.result?.Failure;
-    if (failure) {
-      return failure.error_message || "Casper execution failed.";
-    }
-  }
-
-  return null;
-}
-
-export function formatCasperRpcError(error: any) {
-  if (!error) {
-    return "Unknown Casper RPC error.";
-  }
-
-  if (typeof error === "string") {
-    return error;
-  }
-
-  return error?.message || error?.data?.message || error?.error?.message || JSON.stringify(error);
 }
 
 export function shortHash(value: string) {

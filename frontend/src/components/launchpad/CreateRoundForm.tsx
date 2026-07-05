@@ -3,15 +3,11 @@
 import { useMemo, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { createFundingRound } from "@/actions";
+import { broadcastCasperDeploy, createFundingRound } from "@/actions";
 import {
   CASPER_CHAIN_NAME,
   CASPER_ESCROW_PUBLIC_KEY,
-  CASPER_RPC_URL,
-  formatCasperRpcError,
-  getAcceptedDeployHash,
   getConnectedCasperPublicKey,
-  getDeployFailureMessage,
   isValidCasperPublicKey,
   shortHash,
   signDeployWithCasperWallet,
@@ -85,7 +81,7 @@ export function CreateRoundForm({
 
             // Construct a real Casper Deploy using casper-js-sdk
             const casperSDK = require("casper-js-sdk");
-            const { DeployUtil, CLPublicKey, CasperServiceByJsonRPC } = (casperSDK.default || casperSDK);
+            const { DeployUtil, CLPublicKey } = (casperSDK.default || casperSDK);
             
             pubKey = await getConnectedCasperPublicKey();
             if (pubKey.toLowerCase() !== selectedInvestor!.wallet_pubkey!.toLowerCase()) {
@@ -121,34 +117,14 @@ export function CreateRoundForm({
             const signedDeploy = signed.deploy;
             pubKey = signed.publicKeyHex;
             
-            // Broadcast to the Casper network using the SDK
-            const client = new CasperServiceByJsonRPC(CASPER_RPC_URL);
-            
-            setMessage("Broadcasting transaction to Casper Testnet...");
-            let acceptedDeployHash = signed.deployHashHex;
-            try {
-              const result = await client.deploy(signedDeploy, { checkApproval: true });
-              acceptedDeployHash = getAcceptedDeployHash(result, signed.deployHashHex);
-              console.log("Broadcast successful, deploy hash:", acceptedDeployHash);
-            } catch (broadcastErr: any) {
-              console.error("Casper payment deploy broadcast failed:", broadcastErr);
-              setMessage(`Casper RPC rejected the payment deploy: ${formatCasperRpcError(broadcastErr)}`);
+            setMessage("Broadcasting signed payment through backend...");
+            const broadcastRes = await broadcastCasperDeploy(DeployUtil.deployToJson(signedDeploy), true);
+            if (!broadcastRes.ok) {
+              setMessage(`Casper RPC rejected the payment deploy: ${broadcastRes.error}`);
               return;
             }
 
-            setMessage(`Payment deploy accepted (${shortHash(acceptedDeployHash)}). Waiting for Casper finalization...`);
-            try {
-              const deployInfo = await client.waitForDeploy(acceptedDeployHash, 120000);
-              const failure = getDeployFailureMessage(deployInfo);
-              if (failure) {
-                setMessage(`Casper payment deploy failed: ${failure}`);
-                return;
-              }
-            } catch (waitErr: any) {
-              console.error("Casper payment deploy finalization failed:", waitErr);
-              setMessage(`Could not confirm payment deploy execution: ${formatCasperRpcError(waitErr)}`);
-              return;
-            }
+            const acceptedDeployHash = broadcastRes.data.deploy_hash || signed.deployHashHex;
             
             signature = signed.signatureHex;
             messageString = acceptedDeployHash;
