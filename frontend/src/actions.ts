@@ -238,7 +238,12 @@ export async function evaluateRound(roundId: string, deployHash?: string): Promi
     return { ok: false, error: error instanceof Error ? error.message : "ADMIN_API_KEY is not configured." };
   }
 
-  const response = await fetch(`${backendUrl}/api/launchpad/rounds/${roundId}/evaluate`, {
+  const evaluateUrl = new URL(`${backendUrl}/api/launchpad/rounds/${roundId}/evaluate`);
+  if (deployHash) {
+    evaluateUrl.searchParams.set("deploy_hash", deployHash);
+  }
+
+  const response = await fetch(evaluateUrl.toString(), {
     method: "POST",
     headers: {
       "X-Admin-Key": key,

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { RadioTower } from "lucide-react";
 import { getEvaluatePayload, evaluateRound } from "@/actions";
+import { getConnectedCasperPublicKey, signDeployWithCasperWallet } from "@/lib/casper-wallet";
 
 export function EvaluateRoundButton({ roundId }: { roundId: string }) {
   const [isPending, startTransition] = useTransition();
@@ -26,23 +27,10 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         }
 
         // 2. Request Casper Wallet Signature
-        const casperProvider = (window as any).CasperWalletProvider;
-        if (!casperProvider) {
-          setMessage("Please install the Casper Wallet browser extension to sign the release.");
-          return;
-        }
-
-        const provider = casperProvider();
-        const isConnected = await provider.requestConnection();
-        if (!isConnected) {
-          setMessage("Wallet connection rejected.");
-          return;
-        }
-
-        const pubKey = await provider.getActivePublicKey();
         const casperSDK = require("casper-js-sdk");
         const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey, CasperServiceByJsonRPC } = (casperSDK.default || casperSDK);
 
+        const pubKey = await getConnectedCasperPublicKey();
         const senderKey = CLPublicKey.fromHex(pubKey!);
         const recipientKey = CLPublicKey.fromHex(data.startup_pubkey);
 
@@ -66,25 +54,13 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
         const payment = DeployUtil.standardPayment(5000000000); // 5 CSPR gas for contract call
 
         const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
-        const deployJson = DeployUtil.deployToJson(deploy);
-
-        const signResult = await provider.sign(JSON.stringify(deployJson), pubKey);
-        
-        if (signResult && signResult.cancelled) {
-          setMessage("Release signature was cancelled.");
-          return;
-        }
-
-        let signatureHex = signResult.signature;
-        if (typeof signatureHex !== "string") {
-          signatureHex = Buffer.from(signatureHex).toString("hex");
-        }
-        
-        deployJson.deploy.approvals.push({
-          signer: pubKey,
-          signature: signatureHex
-        });
-        const signedDeploy = DeployUtil.deployFromJson(deployJson).unwrap();
+        const signed = await signDeployWithCasperWallet(
+          deploy,
+          casperSDK.default || casperSDK,
+          "Release signature was cancelled.",
+          pubKey,
+        );
+        const signedDeploy = signed.deploy;
         const rpcUrl = "https://node.testnet.casper.network/rpc";
         const client = new CasperServiceByJsonRPC(rpcUrl);
         
@@ -96,7 +72,7 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
           console.warn("Broadcast failed (CORS or Node issue), but we will still proceed for MVP:", broadcastErr);
         }
         
-        const deployHash = Buffer.from(signedDeploy.hash).toString("hex");
+        const deployHash = signed.deployHashHex;
 
         // 3. Submit deploy hash to backend to finalize release
         setMessage("Finalizing release on backend...");

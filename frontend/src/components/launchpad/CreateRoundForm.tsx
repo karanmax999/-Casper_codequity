@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { createFundingRound } from "@/actions";
+import { getConnectedCasperPublicKey, signDeployWithCasperWallet } from "@/lib/casper-wallet";
 import type { LaunchpadInvestor, LaunchpadStartup } from "@/types/launchpad";
 
 type DraftMilestone = {
@@ -54,25 +55,11 @@ export function CreateRoundForm({
 
           // 1. Trigger Casper Wallet Extension
           try {
-            const casperProvider = (window as any).CasperWalletProvider;
-            if (!casperProvider) {
-              setMessage("Please install the Casper Wallet browser extension to sign the payment.");
-              return;
-            }
-
-            const provider = casperProvider();
-            const isConnected = await provider.requestConnection();
-            if (!isConnected) {
-              setMessage("Wallet connection rejected.");
-              return;
-            }
-
-            pubKey = await provider.getActivePublicKey();
-
             // Construct a real Casper Deploy using casper-js-sdk
             const casperSDK = require("casper-js-sdk");
             const { DeployUtil, CLPublicKey, CasperServiceByJsonRPC } = (casperSDK.default || casperSDK);
             
+            pubKey = await getConnectedCasperPublicKey();
             const senderKey = CLPublicKey.fromHex(pubKey!);
             
             // Transfer to the Escrow Contract (or platform wallet for MVP)
@@ -95,26 +82,14 @@ export function CreateRoundForm({
             const payment = DeployUtil.standardPayment(100000000); // 0.1 CSPR gas
             
             const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
-            const deployJson = DeployUtil.deployToJson(deploy);
-            
-            // Sign the actual deploy using CasperWalletProvider
-            const signResult = await provider.sign(JSON.stringify(deployJson), pubKey);
-            
-            if (signResult && signResult.cancelled) {
-              setMessage("Payment signature was cancelled.");
-              return;
-            }
-            
-            let signatureHex = signResult.signature;
-            if (typeof signatureHex !== "string") {
-              signatureHex = Buffer.from(signatureHex).toString("hex");
-            }
-            
-            deployJson.deploy.approvals.push({
-              signer: pubKey,
-              signature: signatureHex
-            });
-            const signedDeploy = DeployUtil.deployFromJson(deployJson).unwrap();
+            const signed = await signDeployWithCasperWallet(
+              deploy,
+              casperSDK.default || casperSDK,
+              "Payment signature was cancelled.",
+              pubKey,
+            );
+            const signedDeploy = signed.deploy;
+            pubKey = signed.publicKeyHex;
             
             // Broadcast to the Casper network using the SDK
             const rpcUrl = "https://node.testnet.casper.network/rpc"; // Casper Testnet public RPC
@@ -129,8 +104,8 @@ export function CreateRoundForm({
               console.warn("Broadcast failed (CORS or Node issue), but we will still proceed for MVP:", broadcastErr);
             }
             
-            signature = Buffer.from(signedDeploy.approvals[0].signature).toString("hex");
-            messageString = Buffer.from(signedDeploy.hash).toString("hex"); 
+            signature = signed.signatureHex;
+            messageString = signed.deployHashHex;
             
             setMessage("Deploy successfully broadcasted! Creating round...");
 
