@@ -19,6 +19,8 @@ export default async function RoundDetailPage({ params }: PageProps) {
   const releasedCount = milestones.filter((milestone) => milestone.released_at).length;
   const nextMilestone = [...milestones].sort((a, b) => a.milestone_index - b.milestone_index).find((milestone) => !milestone.released_at);
   const ready = nextMilestone ? currentScore >= nextMilestone.threshold_score : false;
+  const escrowHref = escrowContractHref(round.escrow_contract_uref);
+  const safeMintHref = deployHref(round.safe_nft_mint_hash);
 
   return (
     <div className="space-y-6">
@@ -86,13 +88,13 @@ export default async function RoundDetailPage({ params }: PageProps) {
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
           <Reference 
             label="Escrow contract" 
-            value={round.escrow_contract_uref} 
-            href={round.escrow_contract_uref.startsWith("uref-") ? undefined : `https://testnet.cspr.live/contract/${round.escrow_contract_uref}`} 
+            value={escrowHref ? round.escrow_contract_uref : "Not configured"}
+            href={escrowHref}
           />
           <Reference 
             label="SAFE NFT mint" 
-            value={round.safe_nft_mint_hash || "Pending"} 
-            href={round.safe_nft_mint_hash ? `https://testnet.cspr.live/deploy/${round.safe_nft_mint_hash}` : undefined} 
+            value={safeMintHref ? round.safe_nft_mint_hash! : "Pending"}
+            href={safeMintHref}
           />
         </div>
       </section>
@@ -126,4 +128,16 @@ function Reference({ label, value, href }: { label: string; value: string; href?
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(value);
+}
+
+function escrowContractHref(value?: string | null) {
+  if (!value || value.toLowerCase() === "hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765") {
+    return undefined;
+  }
+
+  return /^hash-[\da-f]{64}$/i.test(value) ? `https://testnet.cspr.live/contract/${value}` : undefined;
+}
+
+function deployHref(value?: string | null) {
+  return value && /^[\da-f]{64}$/i.test(value) ? `https://testnet.cspr.live/deploy/${value}` : undefined;
 }

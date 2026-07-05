@@ -3,7 +3,18 @@
 import { useState, useTransition } from "react";
 import { RadioTower } from "lucide-react";
 import { getEvaluatePayload, evaluateRound } from "@/actions";
-import { getConnectedCasperPublicKey, signDeployWithCasperWallet } from "@/lib/casper-wallet";
+import {
+  CASPER_CHAIN_NAME,
+  CASPER_RPC_URL,
+  formatCasperRpcError,
+  getAcceptedDeployHash,
+  getConnectedCasperPublicKey,
+  getDeployFailureMessage,
+  hexToBytes,
+  isValidCasperContractHash,
+  shortHash,
+  signDeployWithCasperWallet,
+} from "@/lib/casper-wallet";
 
 export function EvaluateRoundButton({ roundId }: { roundId: string }) {
   const [isPending, startTransition] = useTransition();
@@ -26,24 +37,27 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
           return;
         }
 
+        if (!isValidCasperContractHash(data.contract_uref)) {
+          setMessage("This round does not have a valid Casper escrow contract hash. Configure ESCROW_CONTRACT_UREF with a deployed testnet contract before releasing funds.");
+          return;
+        }
+
         // 2. Request Casper Wallet Signature
         const casperSDK = require("casper-js-sdk");
         const { DeployUtil, RuntimeArgs, CLValueBuilder, CLPublicKey, CasperServiceByJsonRPC } = (casperSDK.default || casperSDK);
 
         const pubKey = await getConnectedCasperPublicKey();
         const senderKey = CLPublicKey.fromHex(pubKey!);
-        const recipientKey = CLPublicKey.fromHex(data.startup_pubkey);
 
-        const deployParams = new DeployUtil.DeployParams(senderKey, "casper-test");
+        const deployParams = new DeployUtil.DeployParams(senderKey, CASPER_CHAIN_NAME);
 
         const args = RuntimeArgs.fromMap({
           milestone_index: CLValueBuilder.u8(data.milestone_index),
-          current_score: CLValueBuilder.u16(data.current_score),
-          recipient: CLValueBuilder.key(recipientKey),
+          current_score: CLValueBuilder.u8(data.current_score),
         });
 
         // Use the raw hash without the "hash-" prefix
-        const contractHash = Uint8Array.from(Buffer.from(data.contract_uref.replace("hash-", "").replace("uref-", "").split("-")[0], "hex"));
+        const contractHash = hexToBytes(data.contract_uref.replace("hash-", ""));
 
         const session = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
           contractHash,
@@ -61,18 +75,33 @@ export function EvaluateRoundButton({ roundId }: { roundId: string }) {
           pubKey,
         );
         const signedDeploy = signed.deploy;
-        const rpcUrl = "https://node.testnet.casper.network/rpc";
-        const client = new CasperServiceByJsonRPC(rpcUrl);
+        const client = new CasperServiceByJsonRPC(CASPER_RPC_URL);
         
         setMessage("Broadcasting release to Casper Testnet...");
+        let deployHash = signed.deployHashHex;
         try {
-          const result = await client.deploy(signedDeploy);
-          console.log("Broadcast successful, release deploy hash:", result);
+          const result = await client.deploy(signedDeploy, { checkApproval: true });
+          deployHash = getAcceptedDeployHash(result, signed.deployHashHex);
+          console.log("Broadcast successful, release deploy hash:", deployHash);
         } catch (broadcastErr: any) {
-          console.warn("Broadcast failed (CORS or Node issue), but we will still proceed for MVP:", broadcastErr);
+          console.error("Casper release deploy broadcast failed:", broadcastErr);
+          setMessage(`Casper RPC rejected the release deploy: ${formatCasperRpcError(broadcastErr)}`);
+          return;
         }
-        
-        const deployHash = signed.deployHashHex;
+
+        setMessage(`Release deploy accepted (${shortHash(deployHash)}). Waiting for Casper finalization...`);
+        try {
+          const deployInfo = await client.waitForDeploy(deployHash, 120000);
+          const failure = getDeployFailureMessage(deployInfo);
+          if (failure) {
+            setMessage(`Casper release deploy failed: ${failure}`);
+            return;
+          }
+        } catch (waitErr: any) {
+          console.error("Casper release deploy finalization failed:", waitErr);
+          setMessage(`Could not confirm release deploy execution: ${formatCasperRpcError(waitErr)}`);
+          return;
+        }
 
         // 3. Submit deploy hash to backend to finalize release
         setMessage("Finalizing release on backend...");

@@ -4,7 +4,18 @@ import { useMemo, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { createFundingRound } from "@/actions";
-import { getConnectedCasperPublicKey, signDeployWithCasperWallet } from "@/lib/casper-wallet";
+import {
+  CASPER_CHAIN_NAME,
+  CASPER_ESCROW_PUBLIC_KEY,
+  CASPER_RPC_URL,
+  formatCasperRpcError,
+  getAcceptedDeployHash,
+  getConnectedCasperPublicKey,
+  getDeployFailureMessage,
+  isValidCasperPublicKey,
+  shortHash,
+  signDeployWithCasperWallet,
+} from "@/lib/casper-wallet";
 import type { LaunchpadInvestor, LaunchpadStartup } from "@/types/launchpad";
 
 type DraftMilestone = {
@@ -35,6 +46,8 @@ export function CreateRoundForm({
   );
   const selectedStartup = startups.find((startup) => startup.id === startupId);
   const selectedInvestor = investors.find((investor) => investor.id === investorId);
+  const selectedStartupHasValidWallet = isValidCasperPublicKey(selectedStartup?.wallet_pubkey);
+  const selectedInvestorHasValidWallet = isValidCasperPublicKey(selectedInvestor?.wallet_pubkey);
 
   const canSubmit =
     startupId &&
@@ -55,26 +68,43 @@ export function CreateRoundForm({
 
           // 1. Trigger Casper Wallet Extension
           try {
+            if (!isValidCasperPublicKey(CASPER_ESCROW_PUBLIC_KEY)) {
+              setMessage("NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY must be configured with a valid Casper testnet public key before creating real rounds.");
+              return;
+            }
+
+            if (!selectedStartupHasValidWallet) {
+              setMessage("The selected startup must have a valid Casper public key before you create a score-gated round.");
+              return;
+            }
+
+            if (!selectedInvestorHasValidWallet) {
+              setMessage("The selected investor must have a valid Casper public key before creating a funded round.");
+              return;
+            }
+
             // Construct a real Casper Deploy using casper-js-sdk
             const casperSDK = require("casper-js-sdk");
             const { DeployUtil, CLPublicKey, CasperServiceByJsonRPC } = (casperSDK.default || casperSDK);
             
             pubKey = await getConnectedCasperPublicKey();
+            if (pubKey.toLowerCase() !== selectedInvestor!.wallet_pubkey!.toLowerCase()) {
+              setMessage("Connected Casper Wallet does not match the selected investor wallet public key.");
+              return;
+            }
+
             const senderKey = CLPublicKey.fromHex(pubKey!);
-            
-            // Transfer to the Escrow Contract (or platform wallet for MVP)
-            const platformEscrowPubkey = "0119e7a8848a47ce4489a691cb962fc73d1bba45116cd08b8b981d3f25c7cc649c"; // Example platform key
-            
+
             const deployParams = new DeployUtil.DeployParams(
               senderKey,
-              "casper-test"
+              CASPER_CHAIN_NAME
             );
             
             const amountMotes = Math.floor(Number(amount) * 1_000_000_000).toString();
             
             const session = DeployUtil.ExecutableDeployItem.newTransfer(
               amountMotes,
-              CLPublicKey.fromHex(platformEscrowPubkey),
+              CLPublicKey.fromHex(CASPER_ESCROW_PUBLIC_KEY),
               null,
               Date.now()
             );
@@ -92,22 +122,38 @@ export function CreateRoundForm({
             pubKey = signed.publicKeyHex;
             
             // Broadcast to the Casper network using the SDK
-            const rpcUrl = "https://node.testnet.casper.network/rpc"; // Casper Testnet public RPC
-            const client = new CasperServiceByJsonRPC(rpcUrl);
+            const client = new CasperServiceByJsonRPC(CASPER_RPC_URL);
             
             setMessage("Broadcasting transaction to Casper Testnet...");
-            
+            let acceptedDeployHash = signed.deployHashHex;
             try {
-              const result = await client.deploy(signedDeploy);
-              console.log("Broadcast successful, deploy hash:", result);
+              const result = await client.deploy(signedDeploy, { checkApproval: true });
+              acceptedDeployHash = getAcceptedDeployHash(result, signed.deployHashHex);
+              console.log("Broadcast successful, deploy hash:", acceptedDeployHash);
             } catch (broadcastErr: any) {
-              console.warn("Broadcast failed (CORS or Node issue), but we will still proceed for MVP:", broadcastErr);
+              console.error("Casper payment deploy broadcast failed:", broadcastErr);
+              setMessage(`Casper RPC rejected the payment deploy: ${formatCasperRpcError(broadcastErr)}`);
+              return;
+            }
+
+            setMessage(`Payment deploy accepted (${shortHash(acceptedDeployHash)}). Waiting for Casper finalization...`);
+            try {
+              const deployInfo = await client.waitForDeploy(acceptedDeployHash, 120000);
+              const failure = getDeployFailureMessage(deployInfo);
+              if (failure) {
+                setMessage(`Casper payment deploy failed: ${failure}`);
+                return;
+              }
+            } catch (waitErr: any) {
+              console.error("Casper payment deploy finalization failed:", waitErr);
+              setMessage(`Could not confirm payment deploy execution: ${formatCasperRpcError(waitErr)}`);
+              return;
             }
             
             signature = signed.signatureHex;
-            messageString = signed.deployHashHex;
+            messageString = acceptedDeployHash;
             
-            setMessage("Deploy successfully broadcasted! Creating round...");
+            setMessage(`Payment confirmed on Casper Testnet (${shortHash(acceptedDeployHash)}). Creating round...`);
 
           } catch (err: any) {
             console.error("Casper wallet error:", err);
@@ -153,13 +199,13 @@ export function CreateRoundForm({
             <option value="">Select startup</option>
             {startups.map((startup) => (
               <option key={startup.id} value={startup.id}>
-                {startup.name} {startup.wallet_pubkey ? "" : " (using testnet fallback wallet)"}
+                {startup.name} {isValidCasperPublicKey(startup.wallet_pubkey) ? "" : " (invalid or missing Casper wallet)"}
               </option>
             ))}
           </select>
           {selectedStartup && (
             <p className="mt-2 text-xs text-zinc-500">
-              Score {selectedStartup.traction_score ?? 0}/100 - {selectedStartup.wallet_pubkey ? "Wallet ready" : "Wallet missing. Using active Casper testnet key fallback."}
+              Score {selectedStartup.traction_score ?? 0}/100 - {selectedStartupHasValidWallet ? "Casper wallet ready" : "Casper wallet missing or invalid."}
             </p>
           )}
         </Field>
@@ -174,13 +220,13 @@ export function CreateRoundForm({
             <option value="">Select investor</option>
             {investors.map((investor) => (
               <option key={investor.id} value={investor.id}>
-                {investor.firm ? `${investor.name} - ${investor.firm}` : investor.name} {investor.wallet_pubkey ? "" : " (using testnet fallback wallet)"}
+                {investor.firm ? `${investor.name} - ${investor.firm}` : investor.name} {isValidCasperPublicKey(investor.wallet_pubkey) ? "" : " (invalid or missing Casper wallet)"}
               </option>
             ))}
           </select>
           {selectedInvestor && (
             <p className="mt-2 text-xs text-zinc-500">
-              {selectedInvestor.firm || "Independent"} - {selectedInvestor.wallet_pubkey ? "Wallet ready" : "Wallet missing. Using active Casper testnet key fallback."}
+              {selectedInvestor.firm || "Independent"} - {selectedInvestorHasValidWallet ? "Casper wallet ready" : "Casper wallet missing or invalid."}
             </p>
           )}
         </Field>

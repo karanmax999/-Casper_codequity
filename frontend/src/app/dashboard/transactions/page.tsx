@@ -65,9 +65,9 @@ export default async function TransactionsPage() {
 
                 {/* Tx hash */}
                 <div className="min-w-0 pl-4">
-                  {tx.transaction_hash && tx.transaction_hash !== "failed" ? (
+                  {deployHref(tx.transaction_hash) ? (
                     <a
-                      href={`https://testnet.cspr.live/deploy/${tx.transaction_hash}`}
+                      href={deployHref(tx.transaction_hash)!}
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center gap-1.5 font-mono text-xs text-zinc-300 hover:text-[#45f798]"
@@ -76,7 +76,9 @@ export default async function TransactionsPage() {
                       <ExternalLink className="h-3 w-3 shrink-0" />
                     </a>
                   ) : (
-                    <span className="font-mono text-xs text-red-400">failed</span>
+                    <span className={tx.status === "failed" ? "font-mono text-xs text-red-400" : "font-mono text-xs text-zinc-500"}>
+                      {tx.transaction_hash || "pending"}
+                    </span>
                   )}
                   <div className="mt-0.5 truncate font-mono text-[10px] text-zinc-600">
                     {tx.contract_uref}
@@ -149,4 +151,8 @@ function formatDate(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function deployHref(value?: string | null) {
+  return value && /^[\da-f]{64}$/i.test(value) ? `https://testnet.cspr.live/deploy/${value}` : undefined;
 }
