@@ -56,9 +56,7 @@ export default function HowItWorksPage() {
           >
             How It Works
           </Link>
-          <Link href="/sign-in" className="hidden text-xs font-semibold text-zinc-300 hover:text-white sm:inline">
-            Log in
-          </Link>
+
           <Link
             href="/dashboard"
             className="inline-flex h-9 items-center justify-center rounded-sm bg-[#45f798] px-4 text-xs font-black text-black transition-colors hover:bg-[#63ffab]"
