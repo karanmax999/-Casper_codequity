@@ -290,6 +290,52 @@ export async function getEvaluatePayload(roundId: string): Promise<ActionResult<
   }
 }
 
+export async function runStartupEvaluation(
+  startupId: string,
+  roundId?: string,
+): Promise<ActionResult<{ traction_score: number; score: any }>> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { ok: false, error: "Unauthorized" };
+
+    let key: string;
+    try {
+      key = adminKey();
+    } catch (error) {
+      return { ok: false, error: errorMessage(error) };
+    }
+
+    const response = await fetch(`${backendUrl}/api/agents/score/startup/${startupId}`, {
+      method: "POST",
+      headers: {
+        "X-Admin-Key": key,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { ok: false, error: await apiError(response, "AI evaluation failed.") };
+    }
+
+    const result = await response.json().catch(() => ({}));
+    revalidatePath(`/dashboard/startups/${startupId}`);
+    if (roundId) {
+      revalidatePath(`/dashboard/rounds/${roundId}`);
+    }
+
+    return {
+      ok: true,
+      data: {
+        traction_score: Number(result.traction_score ?? result.score?.total ?? 0),
+        score: result.score,
+      },
+    };
+  } catch (error) {
+    return { ok: false, error: `AI evaluation failed before backend response: ${errorMessage(error)}` };
+  }
+}
+
 export async function evaluateRound(roundId: string, deployHash?: string): Promise<ActionResult<{ released: boolean; message?: string }>> {
   try {
     const supabase = await createClient();

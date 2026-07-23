@@ -36,6 +36,25 @@ export type LaunchpadTransaction = {
   created_at?: string | null;
 };
 
+export type LaunchpadAgentOutput = {
+  id: string;
+  startup_id: string;
+  agent_type: string;
+  output_json: {
+    total?: number;
+    dimensions?: Record<string, number>;
+    summary?: string;
+    green_flags?: string[];
+    red_flags?: string[];
+    verdict?: "INVEST" | "HOLD" | "PASS" | string;
+    signals?: {
+      github?: Record<string, unknown> | null;
+      source?: string;
+    };
+  } | null;
+  created_at?: string | null;
+};
+
 export type LaunchpadRound = {
   id: string;
   startup_id: string;

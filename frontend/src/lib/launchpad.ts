@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { LaunchpadInvestor, LaunchpadRound, LaunchpadStartup } from "@/types/launchpad";
+import type { LaunchpadAgentOutput, LaunchpadInvestor, LaunchpadRound, LaunchpadStartup } from "@/types/launchpad";
 
 export async function listLaunchpadRounds() {
   const supabase = await createClient();
@@ -43,6 +43,27 @@ export async function getLaunchpadRound(roundId: string) {
   }
 
   return data as LaunchpadRound | null;
+}
+
+export async function getLatestStartupAgentProof(startupId?: string | null) {
+  if (!startupId) return { proof: null, error: null };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("agent_outputs")
+    .select("id, startup_id, agent_type, output_json, created_at")
+    .eq("startup_id", startupId)
+    .eq("agent_type", "startup_scorer")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to fetch startup agent proof:", error);
+    return { proof: null, error: error.message };
+  }
+
+  return { proof: data as LaunchpadAgentOutput | null, error: null };
 }
 
 export async function listLaunchpadCreateOptions() {

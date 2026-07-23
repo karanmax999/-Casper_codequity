@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, ShieldCheck } from "lucide-react";
-import { getLaunchpadRound } from "@/lib/launchpad";
+import { getLatestStartupAgentProof, getLaunchpadRound } from "@/lib/launchpad";
 import { MilestoneTracker } from "@/components/launchpad/MilestoneTracker";
 import { EvaluateRoundButton } from "@/components/launchpad/EvaluateRoundButton";
+import { AgentProofPanel } from "@/components/launchpad/AgentProofPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function RoundDetailPage({ params }: PageProps) {
   const { id } = await params;
   const round = await getLaunchpadRound(id);
   if (!round) notFound();
+  const { proof, error: proofError } = await getLatestStartupAgentProof(round.startup_id);
 
   const currentScore = round.startup?.traction_score ?? 0;
   const milestones = round.milestones || [];
@@ -82,6 +84,15 @@ export default async function RoundDetailPage({ params }: PageProps) {
       </section>
 
       <MilestoneTracker milestones={milestones} currentScore={currentScore} />
+
+      <AgentProofPanel
+        proof={proof}
+        proofError={proofError}
+        startupId={round.startup_id}
+        roundId={round.id}
+        currentScore={currentScore}
+        nextMilestone={nextMilestone}
+      />
 
       <section className="rounded-sm border border-[#1F1F1F] bg-[#0A0A0A] p-4">
         <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">On-chain references</div>
