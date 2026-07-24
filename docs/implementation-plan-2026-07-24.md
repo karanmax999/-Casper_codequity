@@ -48,13 +48,13 @@ Goal: Make Casper usage impossible to miss.
 
 Tasks:
 
-- [ ] Add a compact proof rail on round detail.
-- [ ] Show deposit deploy hash with testnet explorer link.
-- [ ] Show release deploy hashes with testnet explorer links.
-- [ ] Show SAFE NFT mint status and hash if available.
-- [ ] Show escrow mode: wallet escrow or contract escrow.
-- [ ] Show escrow account or contract reference.
-- [ ] Show agent public key / escrow public key in short form.
+- [x] Add a compact proof rail on round detail.
+- [x] Show deposit deploy hash with testnet explorer link.
+- [x] Show release deploy hashes with testnet explorer links.
+- [x] Show SAFE NFT mint status and hash if available.
+- [x] Show escrow mode: wallet escrow or contract escrow.
+- [x] Show escrow account or contract reference.
+- [x] Show agent public key / escrow public key in short form.
 
 Acceptance criteria:
 

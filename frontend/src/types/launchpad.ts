@@ -82,4 +82,5 @@ export type CreateLaunchpadRoundInput = {
   investor_signature?: string;
   wallet_pubkey?: string;
   message_string?: string;
+  deposit_deploy_hash?: string;
 };

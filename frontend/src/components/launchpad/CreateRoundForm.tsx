@@ -148,6 +148,7 @@ export function CreateRoundForm({
             investor_signature: signature,
             wallet_pubkey: pubKey,
             message_string: messageString,
+            deposit_deploy_hash: messageString,
           });
 
           if (!result.ok) {
