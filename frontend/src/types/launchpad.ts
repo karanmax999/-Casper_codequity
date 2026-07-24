@@ -4,6 +4,11 @@ export type LaunchpadStartup = {
   slug?: string | null;
   logo_url?: string | null;
   traction_score?: number | null;
+  data_quality_score?: number | null;
+  verification_status?: string | null;
+  github_url?: string | null;
+  category?: string | null;
+  stage?: string | null;
   wallet_pubkey?: string | null;
 };
 
@@ -51,6 +56,13 @@ export type LaunchpadAgentOutput = {
       github?: Record<string, unknown> | null;
       source?: string;
     };
+    title?: string;
+    sections?: Record<string, string>;
+    one_liner?: string;
+    risk_level?: "LOW" | "MEDIUM" | "HIGH" | string;
+    recommendation?: "INVEST" | "MEET" | "PASS" | string;
+    score_context?: Record<string, unknown> | null;
+    source?: string;
   } | null;
   created_at?: string | null;
 };

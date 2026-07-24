@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AgentActionsPanel } from "@/components/launchpad/AgentActionsPanel";
+import { RaiseReadinessPanel } from "@/components/launchpad/RaiseReadinessPanel";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -142,8 +144,6 @@ export default async function StartupProfilePage({ params }: PageProps) {
     .eq("id", id)
     .single();
 
-  console.log("DEBUG_STARTUP_DATA:", JSON.stringify(startup, null, 2));
-
   if (!startup) {
     notFound();
   }
@@ -168,7 +168,14 @@ export default async function StartupProfilePage({ params }: PageProps) {
   const tokens = tokensResult.data || [];
   const founder = founderResult.data;
 
-  const latestEvaluation = agentOutputs.length > 0 ? agentOutputs[0] : null;
+  const latestEvaluation =
+    agentOutputs.find((output: any) => output.agent_type === "startup_scorer") ||
+    agentOutputs.find((output: any) => output.output_json?.total !== undefined) ||
+    null;
+  const latestMemo =
+    agentOutputs.find((output: any) => output.agent_type === "investor_memo") ||
+    agentOutputs.find((output: any) => output.output_json?.one_liner !== undefined) ||
+    null;
 
   // Sum up traditional fundraising amounts if total_funding_amount is null
   const calculatedTotalFunding = fundraisingRounds.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
@@ -362,6 +369,10 @@ export default async function StartupProfilePage({ params }: PageProps) {
           </Badge>
         </div>
       </div>
+
+      <RaiseReadinessPanel startup={profile} latestEvaluation={latestEvaluation} />
+
+      <AgentActionsPanel startup={profile} latestScore={latestEvaluation} latestMemo={latestMemo} />
 
       {/* Grid Layout */}
       <div className="grid gap-6 md:grid-cols-3">

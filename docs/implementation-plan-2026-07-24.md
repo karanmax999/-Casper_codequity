@@ -68,11 +68,11 @@ Goal: Give founders a useful readiness dashboard, not just a profile page.
 
 Tasks:
 
-- [ ] Add a "Raise Readiness" section to startup profile.
-- [ ] Show traction score, data quality score, verification status, GitHub signal summary, and funding readiness.
-- [ ] Add suggested milestone terms based on current score.
-- [ ] Add "What to improve next" recommendations.
-- [ ] Show whether startup has a valid Casper wallet.
+- [x] Add a "Raise Readiness" section to startup profile.
+- [x] Show traction score, data quality score, verification status, GitHub signal summary, and funding readiness.
+- [x] Add suggested milestone terms based on current score.
+- [x] Add "What to improve next" recommendations.
+- [x] Show whether startup has a valid Casper wallet.
 
 Acceptance criteria:
 
@@ -85,12 +85,12 @@ Goal: Make round creation feel deliberate, safe, and investor-grade.
 
 Tasks:
 
-- [ ] Convert create-round form into a guided sequence or visibly grouped sections.
-- [ ] Add startup due diligence preview before payment signature.
-- [ ] Add clear payment summary before wallet signing.
-- [ ] Show escrow recipient, amount, chain, milestone thresholds, and release percentages.
-- [ ] Improve success state with link to the newly created round.
-- [ ] Improve wallet mismatch and invalid key errors.
+- [x] Convert create-round form into a guided sequence or visibly grouped sections.
+- [x] Add startup due diligence preview before payment signature.
+- [x] Add clear payment summary before wallet signing.
+- [x] Show escrow recipient, amount, chain, milestone thresholds, and release percentages.
+- [x] Improve success state with link to the newly created round.
+- [x] Improve wallet mismatch and invalid key errors.
 
 Acceptance criteria:
 
@@ -112,11 +112,11 @@ Existing backend endpoints:
 
 Tasks:
 
-- [ ] Add "Run AI Score" button to startup detail.
-- [ ] Add "Generate Investor Memo" button to startup detail.
-- [ ] Add "Refresh External Signals" button for enrichment.
-- [ ] Add streaming UI states for agent work.
-- [ ] Save final score/memo output into Supabase.
+- [x] Add "Run AI Score" button to startup detail.
+- [x] Add "Generate Investor Memo" button to startup detail.
+- [x] Add "Refresh External Signals" button for enrichment.
+- [x] Add streaming UI states for agent work.
+- [x] Save final score/memo output into Supabase.
 
 Acceptance criteria:
 

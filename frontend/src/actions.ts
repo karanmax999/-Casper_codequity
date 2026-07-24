@@ -336,6 +336,89 @@ export async function runStartupEvaluation(
   }
 }
 
+export async function generateInvestorMemo(
+  startupId: string,
+): Promise<ActionResult<{ memo: any }>> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { ok: false, error: "Unauthorized" };
+
+    let key: string;
+    try {
+      key = adminKey();
+    } catch (error) {
+      return { ok: false, error: errorMessage(error) };
+    }
+
+    const response = await fetch(`${backendUrl}/api/agents/memo/startup/${startupId}`, {
+      method: "POST",
+      headers: {
+        "X-Admin-Key": key,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { ok: false, error: await apiError(response, "Investor memo generation failed.") };
+    }
+
+    const result = await response.json().catch(() => ({}));
+    revalidatePath(`/dashboard/startups/${startupId}`);
+
+    return {
+      ok: true,
+      data: {
+        memo: result.memo,
+      },
+    };
+  } catch (error) {
+    return { ok: false, error: `Investor memo failed before backend response: ${errorMessage(error)}` };
+  }
+}
+
+export async function refreshStartupSignals(
+  startupId: string,
+): Promise<ActionResult<{ message: string }>> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { ok: false, error: "Unauthorized" };
+
+    let key: string;
+    try {
+      key = adminKey();
+    } catch (error) {
+      return { ok: false, error: errorMessage(error) };
+    }
+
+    const response = await fetch(`${backendUrl}/api/agents/enrich/${startupId}`, {
+      method: "POST",
+      headers: {
+        "X-Admin-Key": key,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { ok: false, error: await apiError(response, "External signal refresh failed.") };
+    }
+
+    const result = await response.json().catch(() => ({}));
+    revalidatePath(`/dashboard/startups/${startupId}`);
+    revalidatePath("/dashboard/startups");
+
+    return {
+      ok: true,
+      data: {
+        message: result.message || "External signals refreshed.",
+      },
+    };
+  } catch (error) {
+    return { ok: false, error: `External signal refresh failed before backend response: ${errorMessage(error)}` };
+  }
+}
+
 export async function evaluateRound(roundId: string, deployHash?: string): Promise<ActionResult<{ released: boolean; message?: string }>> {
   try {
     const supabase = await createClient();

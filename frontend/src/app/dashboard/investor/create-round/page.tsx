@@ -27,7 +27,7 @@ export default function InvestorCreateRoundPage() {
         // Load startups
         const { data: startupsData, error: startupsError } = await client
           .from('startups')
-          .select('id, name, slug, logo_url, traction_score, wallet_pubkey')
+          .select('id, name, slug, logo_url, traction_score, data_quality_score, verification_status, github_url, category, stage, wallet_pubkey')
           .order('name', { ascending: true });
 
         if (startupsError) throw startupsError;
