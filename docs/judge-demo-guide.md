@@ -25,6 +25,10 @@ Before recording or presenting:
 - Confirm Casper Wallet is installed and unlocked.
 - Confirm Casper Wallet is on testnet.
 - Confirm the wallet has testnet CSPR.
+- Confirm escrow account opens: https://testnet.cspr.live/account/0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02
+- Confirm demo protocol/startup account opens: https://testnet.cspr.live/account/02034c0d05bc3b5fdb3f661a085d331895a37060982de4c61117487c2de521456b82
+- Confirm escrow contract opens: https://testnet.cspr.live/contract/hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765
+- Confirm SAFE contract opens: https://testnet.cspr.live/contract/hash-14ac3b8892224dd8aa829b02460d53e3f3e0d569b859e5225edf83d14f9d9188
 - Confirm at least one round has a visible deposit deploy hash.
 - Confirm at least one startup has visible AI agent output.
 

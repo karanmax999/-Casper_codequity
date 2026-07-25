@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, ExternalLink, RadioTower, XCircle } from "lucide-react";
+import { CSPR_TESTNET_EXPLORER } from "@/lib/casper-deployment";
 import { listOnChainTransactions } from "@/lib/launchpad";
 
 export const dynamic = "force-dynamic";
@@ -154,5 +155,5 @@ function formatDate(value: string) {
 }
 
 function deployHref(value?: string | null) {
-  return value && /^[\da-f]{64}$/i.test(value) ? `https://testnet.cspr.live/deploy/${value}` : undefined;
+  return value && /^[\da-f]{64}$/i.test(value) ? `${CSPR_TESTNET_EXPLORER}/deploy/${value}` : undefined;
 }

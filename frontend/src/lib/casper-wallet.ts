@@ -1,5 +1,7 @@
 "use client";
 
+import { CODEQUITY_ESCROW_PUBLIC_KEY } from "@/lib/casper-deployment";
+
 type CasperDeploySigningResult = {
   publicKeyHex: string;
   deploy: any;
@@ -9,7 +11,7 @@ type CasperDeploySigningResult = {
 
 export const CASPER_CHAIN_NAME = process.env.NEXT_PUBLIC_CASPER_CHAIN_NAME || "casper-test";
 export const CASPER_ESCROW_PUBLIC_KEY =
-  process.env.NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY?.trim() || "";
+  process.env.NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY?.trim() || CODEQUITY_ESCROW_PUBLIC_KEY;
 
 export async function signDeployWithCasperWallet(
   deploy: any,

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getSupabase } from "@/lib/supabase";
+import { DEMO_PROTOCOL_PUBLIC_KEY } from "@/lib/casper-deployment";
 import { useRouter } from "next/navigation";
 import {
   PlusCircle,
@@ -201,7 +202,7 @@ export default function RegisterProtocol() {
           </label>
           <input
             type="text"
-            placeholder="02034c0d05bc3b5fdb3f661a085d331895a37060982de4c61117487c2de521456b82"
+            placeholder={DEMO_PROTOCOL_PUBLIC_KEY}
             value={walletPubkey}
             onChange={(e) => setWalletPubkey(e.target.value.trim())}
             className="w-full bg-[#030303] border border-[#1F1F1F] rounded-sm py-2.5 px-3 text-sm text-white placeholder-zinc-700 font-mono focus:outline-none focus:border-[#45f798] transition-colors"

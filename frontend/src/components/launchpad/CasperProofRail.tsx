@@ -8,10 +8,13 @@ import {
   ShieldCheck,
   Timer,
 } from "lucide-react";
+import {
+  CODEQUITY_ESCROW_PUBLIC_KEY,
+  CSPR_TESTNET_EXPLORER,
+  ESCROW_CONTRACT_UREF,
+  csprContractHref,
+} from "@/lib/casper-deployment";
 import type { LaunchpadRound, LaunchpadTransaction } from "@/types/launchpad";
-
-const CSPR_TESTNET_EXPLORER = "https://testnet.cspr.live";
-const PLACEHOLDER_ESCROW_HASH = "hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765";
 
 export function CasperProofRail({ round }: { round: LaunchpadRound }) {
   const transactions = round.on_chain_transactions || [];
@@ -22,6 +25,7 @@ export function CasperProofRail({ round }: { round: LaunchpadRound }) {
   const escrow = escrowDetails(round.escrow_contract_uref);
   const publicKey = process.env.NEXT_PUBLIC_CASPER_AGENT_PUBLIC_KEY?.trim()
     || process.env.NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY?.trim()
+    || CODEQUITY_ESCROW_PUBLIC_KEY
     || "";
 
   return (
@@ -183,14 +187,14 @@ function releaseDeployHashes(round: LaunchpadRound) {
 }
 
 function escrowDetails(value?: string | null) {
-  const normalized = value?.trim() || "";
+  const normalized = value?.trim() || ESCROW_CONTRACT_UREF;
 
-  if (normalized && normalized.toLowerCase() !== PLACEHOLDER_ESCROW_HASH && /^hash-[\da-f]{64}$/i.test(normalized)) {
+  if (normalized && /^hash-[\da-f]{64}$/i.test(normalized)) {
     return {
       mode: "Contract escrow",
       label: "Escrow contract",
       value: normalized,
-      href: `${CSPR_TESTNET_EXPLORER}/contract/${normalized}`,
+      href: csprContractHref(normalized),
     };
   }
 
@@ -206,7 +210,7 @@ function escrowDetails(value?: string | null) {
 
   const accountPubkey = normalized.startsWith("account-")
     ? normalized.slice("account-".length)
-    : process.env.NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY?.trim() || "";
+    : process.env.NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY?.trim() || CODEQUITY_ESCROW_PUBLIC_KEY;
 
   if (isCasperPublicKey(accountPubkey)) {
     return {

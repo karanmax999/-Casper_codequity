@@ -3,6 +3,14 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
+  CODEQUITY_ESCROW_PUBLIC_KEY,
+  DEMO_PROTOCOL_PUBLIC_KEY,
+  ESCROW_CONTRACT_UREF,
+  SAFE_CONTRACT_UREF,
+  csprAccountHref,
+  csprContractHref,
+} from "@/lib/casper-deployment";
+import {
   ArrowRight,
   Banknote,
   BookOpen,
@@ -104,6 +112,9 @@ Next.js Launchpad
       "Deposit deploy hash",
       "Release deploy hash",
       "Escrow wallet or contract reference",
+      `Escrow account ${CODEQUITY_ESCROW_PUBLIC_KEY}`,
+      `Escrow contract ${ESCROW_CONTRACT_UREF}`,
+      `SAFE contract ${SAFE_CONTRACT_UREF}`,
       "Casper chain name",
       "Startup recipient public key",
     ],
@@ -191,6 +202,29 @@ const revenueRows = [
   ["AI reports", "Investors / analysts", "Paid diligence reports or report credits"],
   ["API access", "Venture tools / agents", "Usage-based score and memo endpoints"],
   ["White-label", "Ecosystems / universities", "Setup fee plus subscription"],
+];
+
+const casperReferences = [
+  {
+    label: "Escrow account",
+    value: CODEQUITY_ESCROW_PUBLIC_KEY,
+    href: csprAccountHref(CODEQUITY_ESCROW_PUBLIC_KEY),
+  },
+  {
+    label: "Demo protocol/startup account",
+    value: DEMO_PROTOCOL_PUBLIC_KEY,
+    href: csprAccountHref(DEMO_PROTOCOL_PUBLIC_KEY),
+  },
+  {
+    label: "Escrow contract",
+    value: ESCROW_CONTRACT_UREF,
+    href: csprContractHref(ESCROW_CONTRACT_UREF),
+  },
+  {
+    label: "SAFE contract",
+    value: SAFE_CONTRACT_UREF,
+    href: csprContractHref(SAFE_CONTRACT_UREF),
+  },
 ];
 
 export default function DocumentationPage() {
@@ -372,6 +406,37 @@ export default function DocumentationPage() {
                 </table>
               </div>
             </section>
+
+            <section id="casper-links" className="scroll-mt-28">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-sm border border-[#66f4ff]/30 bg-[#66f4ff]/10">
+                  <Network className="h-5 w-5 text-[#66f4ff]" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.24em] text-[#66f4ff]">Testnet Proof</div>
+                  <h2 className="font-space-grotesk text-2xl font-black text-white md:text-3xl">Live Casper References</h2>
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                {casperReferences.map((reference) => (
+                  <a
+                    key={reference.label}
+                    href={reference.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group grid gap-2 rounded-sm border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-[#66f4ff]/40 hover:bg-[#66f4ff]/10 md:grid-cols-[220px_1fr_auto] md:items-center"
+                  >
+                    <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">{reference.label}</span>
+                    <span className="min-w-0 break-all font-mono text-xs text-zinc-300">{reference.value}</span>
+                    <span className="inline-flex items-center gap-2 text-xs font-bold text-[#66f4ff]">
+                      Open
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
 
@@ -386,6 +451,9 @@ export default function DocumentationPage() {
               ))}
               <a href="#revenue-table" className="block text-zinc-500 transition-colors hover:text-[#45f798]">
                 Revenue Table
+              </a>
+              <a href="#casper-links" className="block text-zinc-500 transition-colors hover:text-[#45f798]">
+                Casper Links
               </a>
             </div>
           </div>

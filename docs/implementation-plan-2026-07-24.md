@@ -143,7 +143,7 @@ Vercel variables to verify:
 - [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - [ ] `ADMIN_API_KEY` matches Railway exactly.
 - [ ] `NEXT_PUBLIC_CASPER_CHAIN_NAME=casper-test`
-- [ ] `NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY`
+- [ ] `NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY=0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02`
 
 Railway variables to verify:
 
@@ -151,10 +151,10 @@ Railway variables to verify:
 - [ ] `SUPABASE_SERVICE_ROLE_KEY`
 - [ ] `ADMIN_API_KEY`
 - [ ] `CASPER_NODE_URL=https://node.testnet.casper.network`
-- [ ] `CASPER_ESCROW_PUBLIC_KEY`
+- [ ] `CASPER_ESCROW_PUBLIC_KEY=0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02`
 - [ ] `AGENT_PRIVATE_KEY`
-- [ ] `ESCROW_CONTRACT_UREF`
-- [ ] `SAFE_CONTRACT_UREF`
+- [ ] `ESCROW_CONTRACT_UREF=hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765`
+- [ ] `SAFE_CONTRACT_UREF=hash-14ac3b8892224dd8aa829b02460d53e3f3e0d569b859e5225edf83d14f9d9188`
 - [ ] At least one LLM key: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GROQ_API_KEY`.
 
 Supabase checks:
@@ -179,6 +179,10 @@ Tasks:
 - [ ] Prepare one round where current score is below threshold.
 - [ ] Prepare one round where current score is ready for release.
 - [ ] Collect Casper Testnet deploy links.
+- [ ] Verify escrow account link: `https://testnet.cspr.live/account/0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02`
+- [ ] Verify demo protocol/startup account link: `https://testnet.cspr.live/account/02034c0d05bc3b5fdb3f661a085d331895a37060982de4c61117487c2de521456b82`
+- [ ] Verify escrow contract link: `https://testnet.cspr.live/contract/hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765`
+- [ ] Verify SAFE contract link: `https://testnet.cspr.live/contract/hash-14ac3b8892224dd8aa829b02460d53e3f3e0d569b859e5225edf83d14f9d9188`
 - [ ] Update README with architecture and demo flow.
 - [ ] Add a concise limitations section.
 - [ ] Record final demo video.

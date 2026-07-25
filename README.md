@@ -51,6 +51,17 @@ CodeQuity uses Casper for:
 - Testnet deploy hashes linked from round detail pages.
 - Future mainnet-grade programmable funding agreements.
 
+## Live Casper Testnet Proof
+
+These are the current testnet references used by the demo and documentation:
+
+| Reference | Value | Explorer |
+| --- | --- | --- |
+| Escrow account | `0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02` | [Open account](https://testnet.cspr.live/account/0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02) |
+| Demo protocol/startup account | `02034c0d05bc3b5fdb3f661a085d331895a37060982de4c61117487c2de521456b82` | [Open account](https://testnet.cspr.live/account/02034c0d05bc3b5fdb3f661a085d331895a37060982de4c61117487c2de521456b82) |
+| Escrow contract | `hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765` | [Open contract](https://testnet.cspr.live/contract/hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765) |
+| SAFE contract | `hash-14ac3b8892224dd8aa829b02460d53e3f3e0d569b859e5225edf83d14f9d9188` | [Open contract](https://testnet.cspr.live/contract/hash-14ac3b8892224dd8aa829b02460d53e3f3e0d569b859e5225edf83d14f9d9188) |
+
 ## AI Agent Layer
 
 The AI layer is not a chatbot bolted onto the UI. It is part of the funding workflow.
@@ -132,7 +143,9 @@ BACKEND_URL=https://backend.codequity.live
 NEXT_PUBLIC_API_URL=https://backend.codequity.live
 NEXT_PUBLIC_AUTH_REDIRECT_ORIGIN=http://localhost:3000
 NEXT_PUBLIC_CASPER_CHAIN_NAME=casper-test
-NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY=...
+NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY=0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02
+ESCROW_CONTRACT_UREF=hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765
+SAFE_CONTRACT_UREF=hash-14ac3b8892224dd8aa829b02460d53e3f3e0d569b859e5225edf83d14f9d9188
 ```
 
 ### Database

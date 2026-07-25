@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { broadcastCasperDeploy, createFundingRound } from "@/actions";
+import { CSPR_TESTNET_EXPLORER } from "@/lib/casper-deployment";
 import {
   CASPER_CHAIN_NAME,
   CASPER_ESCROW_PUBLIC_KEY,
@@ -39,8 +40,6 @@ type FormNotice =
       deployHash?: string;
     }
   | null;
-
-const CSPR_TESTNET_EXPLORER = "https://testnet.cspr.live";
 
 export function CreateRoundForm({
   startups,

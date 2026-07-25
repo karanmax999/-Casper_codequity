@@ -433,8 +433,9 @@ Create `.env`:
 ```
 CASPER_NODE_URL=https://testnet.casper.network
 AGENT_PRIVATE_KEY_PATH=agent/secret_key.pem
-ESCROW_CONTRACT_UREF=uref-...
-SAFE_CONTRACT_UREF=uref-...
+CASPER_ESCROW_PUBLIC_KEY=0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02
+ESCROW_CONTRACT_UREF=hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765
+SAFE_CONTRACT_UREF=hash-14ac3b8892224dd8aa829b02460d53e3f3e0d569b859e5225edf83d14f9d9188
 ```
 
 #### 2.3 Testing
@@ -928,7 +929,7 @@ export function RoundCard({ round }: RoundCardProps) {
             <a href={`/investor/rounds/${round.id}`}>View Details</a>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <a href={`https://testnet.casper.network/contract/${round.escrow_contract_uref}`} target="_blank">
+            <a href={`https://testnet.cspr.live/contract/${round.escrow_contract_uref}`} target="_blank">
               Explorer
             </a>
           </Button>
@@ -1081,7 +1082,7 @@ export default async function RoundDetailPage({ params }: { params: { id: string
           Force Evaluate
         </Button>
         <Button variant="outline" asChild>
-          <a href={`https://testnet.casper.network/contract/${round.escrow_contract_uref}`} target="_blank">
+          <a href={`https://testnet.cspr.live/contract/${round.escrow_contract_uref}`} target="_blank">
             View Escrow on Explorer
           </a>
         </Button>
@@ -1337,8 +1338,9 @@ CASPER_NODE_URL=https://testnet.casper.network
 AGENT_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----
 ...
 -----END PRIVATE KEY-----
-ESCROW_CONTRACT_UREF=...
-SAFE_CONTRACT_UREF=...
+CASPER_ESCROW_PUBLIC_KEY=0202adeeff8bbd3af398698d1ffcbe0e4220e1199bfa2840108f4a0046c1dc5bbd02
+ESCROW_CONTRACT_UREF=hash-c489f547dc4a855d7a9361cbaf649af8d9c17528a1fa072bbd0c6bb12b008765
+SAFE_CONTRACT_UREF=hash-14ac3b8892224dd8aa829b02460d53e3f3e0d569b859e5225edf83d14f9d9188
 BACKEND_API_KEY=... (optional for protecting admin endpoints)
 ```
 

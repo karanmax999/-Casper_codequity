@@ -1,4 +1,5 @@
 import { CheckCircle2, Circle, ExternalLink, LockKeyhole, RadioTower } from "lucide-react";
+import { CSPR_TESTNET_EXPLORER } from "@/lib/casper-deployment";
 import type { LaunchpadMilestone } from "@/types/launchpad";
 
 export function MilestoneTracker({
@@ -79,7 +80,7 @@ export function MilestoneTracker({
                 </span>
                 {milestone.tx_hash && (
                   <a
-                    href={`https://testnet.cspr.live/deploy/${milestone.tx_hash}`}
+                    href={`${CSPR_TESTNET_EXPLORER}/deploy/${milestone.tx_hash}`}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex h-7 items-center gap-1 rounded-sm border border-[#2A2A2A] px-2 text-[10px] font-semibold text-zinc-300 hover:border-[#45f798]/50 hover:text-[#45f798]"
