@@ -148,42 +148,7 @@ Apply the migrations in `supabase/migrations` to the Supabase project used by th
 
 See [contracts/README.md](./contracts/README.md) for Casper contract build and deployment notes.
 
-## Judge Demo Script
 
-Use this flow for the submission video or live judging:
-
-1. Open the landing page and state the one-line pitch.
-2. Go to the dashboard and open a startup profile.
-3. Show the Raise Readiness panel and AI due diligence report.
-4. Create a funding round and show the payment summary.
-5. Connect/sign with Casper Wallet.
-6. Open the round detail page.
-7. Show Casper Proof Rail: deposit hash, escrow mode, release hash placeholders or completed hashes.
-8. Run AI evaluation or show latest persisted agent output.
-9. Trigger eligible milestone release.
-10. Show final status and explorer reference.
-
-More detail: [Judge Demo Guide](./docs/judge-demo-guide.md).
-
-## What Is Implemented
-
-- Investor and startup dashboards.
-- Investor onboarding and approval workflow.
-- Startup profile with raise readiness context.
-- Round creation with Casper Wallet signing flow.
-- Round detail page with milestone tracker.
-- Casper proof rail for deposit/release visibility.
-- AI proof panel and agent action buttons.
-- Supabase schema and migrations.
-- Odra/Rust contract workspace.
-- In-app documentation route.
-
-## Current Hackathon Limitations
-
-- The live demo is testnet-focused.
-- Some contract settlement paths support wallet escrow mode while contract escrow is prepared for deeper mainnet hardening.
-- The AI score is useful for demo diligence but should be calibrated with more datasets before production capital decisions.
-- Compliance, KYC, and fund administration workflows are roadmap items, not final-round scope.
 
 ## Roadmap
 
