@@ -1,8 +1,17 @@
 node_modules/
+**/node_modules/
 .next/
+**/.next/
 out/
+**/out/
 build/
+**/build/
+coverage/
+**/coverage/
+*.tsbuildinfo
 *.log
+*.out.log
+*.err.log
 .casper-*.log
 frontend/.casper-*.log
 
@@ -17,10 +26,22 @@ venv/
 
 # Supabase
 .supabase/
+.vercel/
+.railway/
 
 # OS files
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+
+# Local scratch / generated notes
+test.txt
+**/test.txt
+implementer-task-*.md
+*.tmp
+*.bak
+*.orig
 
 # Keys / Secrets
 **/*.pem

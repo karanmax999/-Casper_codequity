@@ -1,152 +1,199 @@
 <div align="center">
-  <img src="./frontend/public/logo.png" alt="CodeQuity Logo" width="120" />
+  <img src="./frontend/public/logo.png" alt="CodeQuity Logo" width="110" />
 
-  # CodeQuity
-  
-  **The Trustless Engine for Programmatic Venture Capital**
+  # CodeQuity Casper Launchpad
 
-  [![Casper Network](https://img.shields.io/badge/Network-Casper-red?style=for-the-badge&logo=casper)](https://casper.network/)
-  [![Frontend](https://img.shields.io/badge/Frontend-Next.js_14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-  [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
-  [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+  **AI-governed milestone funding for startups, settled through Casper proof rails.**
+
+  [![Casper Network](https://img.shields.io/badge/Network-Casper-red?style=for-the-badge)](https://casper.network/)
+  [![Next.js](https://img.shields.io/badge/Frontend-Next.js-black?style=for-the-badge)](https://nextjs.org/)
+  [![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=for-the-badge)](https://supabase.com/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-  [**Launchpad**](https://launchpad.codequity.live/) • [**Documentation**](#getting-started) • [**Architecture**](#system-architecture-flow)
+  **Live app:** https://launchpad.codequity.live  
+  **Demo path:** investor dashboard -> startup profile -> create round -> Casper wallet signature -> AI evaluation -> milestone release proof
 </div>
 
 ---
 
-## 1. Executive Summary & Narrative
+## What CodeQuity Does
 
-**CodeQuity is fundamentally rewiring how early-stage startups get funded.**
+CodeQuity is a venture funding protocol where investors commit capital to startups through milestone-based rounds. The milestone logic is governed by an AI traction score and the payment proof is anchored through Casper.
 
-### The Problem
-The traditional Venture Capital model is broken. Capital deployment relies on "warm intros," geographic proximity, and subjective human bias. Brilliant technical builders are often ignored simply because they lack the social capital to navigate the Silicon Valley echo chamber. **Your pitch deck is lying to investors, and investors know it.**
+Instead of releasing capital because a founder gave a persuasive update, CodeQuity releases capital when the startup's tracked proof improves: GitHub velocity, product progress, data quality, wallet readiness, and AI-generated due diligence.
 
-### The Solution
-CodeQuity introduces the **Threshold Release Engine** and the **Intelligence Layer**—the new financial primitives for Web3 capital allocation. By replacing human VC boards with deterministic AI evaluation and Casper Network smart contracts, we guarantee that funding is distributed based purely on raw, irrefutable technical traction.
+The product is built for:
 
-Code is truth. When you ship, you get paid.
+- Investors who want objective, auditable capital release.
+- Founders who want to raise against execution instead of network access.
+- Accelerators and grant programs that need transparent milestone funding.
+- Ecosystem funds that want a programmable way to support early teams.
 
-![CodeQuity Platform](./frontend/public/ss1.png)
+## The Core Flow
 
----
+1. A startup profile stores company data, GitHub signal context, traction score, and Casper wallet status.
+2. An investor creates a funding round with CSPR amount and milestone thresholds.
+3. Casper Wallet signs the deposit deploy or escrow transfer.
+4. The AI agent evaluates the startup and persists a due diligence record.
+5. If the startup score crosses a milestone threshold, the release path becomes eligible.
+6. Casper Wallet signs the release deploy.
+7. The round detail page shows milestone status, AI reasoning, and Casper deploy references.
 
-## 2. Technical Architecture & Deep Dive
+## Why Casper
 
-CodeQuity operates at the bleeding edge of agentic AI and distributed ledger technology.
+Casper is a strong fit for this use case because milestone funding is closer to real-world finance than speculative trading. The protocol benefits from Casper's account model, predictable execution, upgradeable contract path, and enterprise-friendly architecture.
 
-### The Intelligence Layer
-The core of our evaluation logic is the Intelligence Layer. It acts as an aggressive, unbiased data aggregator. It compresses multi-source signals (GitHub velocity, API integrations, on-chain activity, and market dynamics) into a single deterministic integer: **The CodeQuity Traction Score (0-100)**. 
+CodeQuity uses Casper for:
 
-### Smart Contract Integration (The Threshold Engine)
-We utilize the **Casper Network** to secure capital and tokenize agreements. Escrow isn't handled by a bank; it is handled by trustless, upgradeable smart contracts written in Odra (Rust). 
+- Wallet-native investor signatures.
+- CSPR deposit and release proofs.
+- Escrow contract / escrow wallet settlement modes.
+- Testnet deploy hashes linked from round detail pages.
+- Future mainnet-grade programmable funding agreements.
 
-Furthermore, every funding agreement is tokenized as a **SAFE NFT**. The terms of the agreement are dynamically generated, permanently stored on the decentralized **IPFS** network via Pinata, and cryptographically bound to the NFT metadata on the Casper blockchain. 
+## AI Agent Layer
 
-When the Intelligence Layer verifies that a startup has hit a milestone threshold, it generates cryptographic "Proof-of-Traction" evidence. This signed payload is broadcasted to the Casper RPC, instantly triggering the automated release of CSPR directly to the founder's wallet.
+The AI layer is not a chatbot bolted onto the UI. It is part of the funding workflow.
 
-### System Architecture Flow
+It produces:
 
-```mermaid
-sequenceDiagram
-    participant F as Founder (GitHub)
-    participant IL as Intelligence Layer (AI)
-    participant DB as CodeQuity Supabase
-    participant IPFS as IPFS (Pinata)
-    participant SC as Casper Smart Contract
-    participant INV as Investor Wallet
+- Traction score.
+- Verdict and rationale.
+- Green flags and red flags.
+- GitHub and product signal interpretation.
+- Investor memo output.
+- Suggested raise readiness improvements.
 
-    Note over F,INV: Phase 1: Capital Commitment & Agreement
-    INV->>SC: Lock CSPR in EscrowVault
-    IL->>IPFS: Pin SAFE Terms (JSON)
-    IPFS-->>IL: Return IPFS Hash (ipfs://Qm...)
-    IL->>SC: Mint SAFE NFT with IPFS Hash
-    SC-->>DB: Record Funding Round & Mint Hash
-    
-    Note over F,INV: Phase 2: Execution & Traction
-    F->>IL: Push Code / Deploy to Testnet
-    IL->>IL: Evaluate GitHub Velocity & On-Chain Data
-    IL->>DB: Update Traction Score (e.g. 75/100)
-    
-    Note over F,INV: Phase 3: Automated Milestone Settlement
-    IL->>SC: Submit Signed Proof-of-Traction (Score: 75)
-    SC->>SC: Verify Signature & Threshold (Milestone 1: 60)
-    SC->>F: Release 50% CSPR to Founder
-    SC-->>DB: Record Milestone Finalized
+The important product point: the AI output is persisted and displayed next to the funding round, so judges can see why capital is or is not eligible for release.
+
+## Business Model
+
+CodeQuity can make money through five clear channels:
+
+| Revenue Stream | Customer | Model |
+| --- | --- | --- |
+| Success fee | Investors / funds | 0.5% to 2% fee on released milestone capital |
+| Fund OS subscription | Accelerators, grant programs, angel syndicates | Monthly SaaS fee for dashboards, approvals, reporting, and workflow automation |
+| AI diligence reports | Investors and ecosystem partners | Paid per startup report or bundled credits |
+| API access | Venture tools, accelerators, grant platforms | Usage-based pricing for score, memo, and signal endpoints |
+| White-label launchpad | Universities, ecosystems, corporate venture teams | Setup fee plus platform subscription |
+
+The wedge is hackathon and ecosystem funding, where capital is already milestone-based and transparency matters. From there, CodeQuity expands into accelerator cohorts, angel syndicates, and early-stage venture funds.
+
+## Repository Map
+
+```text
+Casper_codequity/
+  frontend/                 Next.js app for investors, founders, admins, and docs
+  contracts/                Odra/Rust Casper contracts and contract README
+  supabase/migrations/      Launchpad database schema and policy migrations
+  scripts/                  Casper deployment and environment helper scripts
+  docs/                     Submission, architecture, business, and demo documentation
 ```
 
----
+## Documentation
 
-## 3. Key Features
+- [Product Overview](./docs/overview.md)
+- [Architecture](./docs/architecture.md)
+- [Business Model](./docs/business-model.md)
+- [Technical Setup](./docs/technical-setup.md)
+- [Judge Demo Guide](./docs/judge-demo-guide.md)
+- [Contracts README](./contracts/README.md)
 
-- **Automated Milestone Settlement**: Removing human friction from capital deployment. Once a threshold is set, the funds are cryptographically bound to the startup's execution. No board meetings. No delays.
-- **Decentralized SAFE Agreements**: Every investment is backed by an on-chain SAFE NFT on the Casper network, with the deal terms permanently pinned to IPFS to guarantee immutability.
-- **Audit-Ready Evidence**: Every release is backed by immutable, on-chain evidence. Investors can track the exact block, hash, and cryptographic signature that justified the release of their capital.
-- **AI-Driven Deal Sourcing**: Objectively identifying winners before they hit consensus. Our engine strips away the narrative to find the teams that are actually shipping robust, secure code.
-- **Wallet-Native Transfers**: Optional bypass of heavy smart contracts. Investors can authorize direct P2P milestone transfers from their Casper Wallet, reducing friction while maintaining programmatic scoring logic.
+## Local Setup
 
----
+### Prerequisites
 
-## 4. Getting Started
+- Node.js 20+
+- npm
+- Supabase project or local Supabase CLI
+- Casper Wallet browser extension
+- Casper testnet account with faucet CSPR
+- Optional for contract work: Rust, Odra, and Casper client tools
 
-### For Founders (Prove Your Worth)
-1. **Register**: Sign in to the CodeQuity Launchpad.
-2. **Connect**: Link your GitHub repositories and Web3 wallets to the Intelligence Layer.
-3. **Configure**: Define your target raise and the score milestones (e.g., 50% release at Score 60, 50% at Score 80).
-4. **Execute**: Start shipping code. Watch your score climb and your capital unlock automatically.
+### Frontend
 
-### For Investors (Deploy Capital Programmatically)
-1. **Browse**: Access the Launchpad to view startups ranked purely by objective traction.
-2. **Commit**: Select a startup and define your investment amount (CSPR).
-3. **Escrow**: Use your Casper Wallet to securely lock funds into the milestone contract (or the platform escrow wallet).
-4. **Monitor**: Track real-time execution via the dashboard. Capital is protected until the founder delivers.
-
-### Environment Setup (Local Development)
-
-#### Prerequisites
-- **Node.js** (v18+) & **npm/pnpm**
-- **Python** (v3.10+)
-- **Rust** & **Odra** (for Casper Smart Contracts)
-- **Supabase CLI**
-
-#### 1. Backend Integration (FastAPI)
 ```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-# Ensure CASPER_NODE_URL and CASPER_ESCROW_PUBLIC_KEY are set in .env
-uvicorn main:app --reload
-```
-
-#### 2. Frontend Dashboard (Next.js 14)
-```bash
-cd frontend
+cd Casper_codequity/frontend
 npm install
-# Ensure NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY is configured in .env.local
 npm run dev
 ```
 
-#### 3. Database (Supabase)
-```bash
-npx supabase start
-npx supabase migration up
+Open `http://localhost:3000`.
+
+### Frontend Environment
+
+Create `frontend/.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+BACKEND_URL=https://backend.codequity.live
+NEXT_PUBLIC_API_URL=https://backend.codequity.live
+NEXT_PUBLIC_AUTH_REDIRECT_ORIGIN=http://localhost:3000
+NEXT_PUBLIC_CASPER_CHAIN_NAME=casper-test
+NEXT_PUBLIC_CASPER_ESCROW_PUBLIC_KEY=...
 ```
 
----
+### Database
 
-## 5. Security & Trust Model
+Apply the migrations in `supabase/migrations` to the Supabase project used by the frontend. Demo data should include:
 
-In Web3, trust is not assumed—it is mathematically guaranteed.
+- At least one startup with `wallet_pubkey`.
+- At least one approved investor with `wallet_pubkey`.
+- At least one funding round with two milestones.
+- At least one agent output record for visible AI proof.
 
-- **Verification Logic**: How does CodeQuity ensure data isn't spoofed? The Intelligence Layer cross-references GitHub commit signatures with actual deployed smart contract bytecodes. Spammed commits are filtered out by our semantic analysis engines.
-- **Escrow Security**: Investor funds are routed through non-custodial Casper smart contracts or highly-secure, multi-sig escrow architecture. The platform itself cannot arbitrarily drain funds.
-- **Transparency**: CodeQuity provides an "Auditable Trust" record. Every interaction—from round creation to milestone finalization—is recorded on the Casper testnet and linked directly in the frontend dashboard.
+### Contracts
 
----
+See [contracts/README.md](./contracts/README.md) for Casper contract build and deployment notes.
 
-<div align="center">
-  <i>Developed for the Casper Network Ecosystem by CodeQuity.</i><br>
-  <b>Code is Truth.</b>
-</div>
+## Judge Demo Script
+
+Use this flow for the submission video or live judging:
+
+1. Open the landing page and state the one-line pitch.
+2. Go to the dashboard and open a startup profile.
+3. Show the Raise Readiness panel and AI due diligence report.
+4. Create a funding round and show the payment summary.
+5. Connect/sign with Casper Wallet.
+6. Open the round detail page.
+7. Show Casper Proof Rail: deposit hash, escrow mode, release hash placeholders or completed hashes.
+8. Run AI evaluation or show latest persisted agent output.
+9. Trigger eligible milestone release.
+10. Show final status and explorer reference.
+
+More detail: [Judge Demo Guide](./docs/judge-demo-guide.md).
+
+## What Is Implemented
+
+- Investor and startup dashboards.
+- Investor onboarding and approval workflow.
+- Startup profile with raise readiness context.
+- Round creation with Casper Wallet signing flow.
+- Round detail page with milestone tracker.
+- Casper proof rail for deposit/release visibility.
+- AI proof panel and agent action buttons.
+- Supabase schema and migrations.
+- Odra/Rust contract workspace.
+- In-app documentation route.
+
+## Current Hackathon Limitations
+
+- The live demo is testnet-focused.
+- Some contract settlement paths support wallet escrow mode while contract escrow is prepared for deeper mainnet hardening.
+- The AI score is useful for demo diligence but should be calibrated with more datasets before production capital decisions.
+- Compliance, KYC, and fund administration workflows are roadmap items, not final-round scope.
+
+## Roadmap
+
+- Casper mainnet escrow deployment.
+- Stronger contract audit and release policy hardening.
+- x402/API monetization for external score and memo access.
+- Accelerator/fund admin console.
+- Richer signal ingestion: product analytics, revenue proofs, grants, on-chain usage.
+- Periodic score anchoring to Casper for tamper-evident diligence history.
+
+## License
+
+MIT

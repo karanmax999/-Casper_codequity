@@ -56,6 +56,12 @@ export default function HowItWorksPage() {
           >
             How It Works
           </Link>
+          <Link 
+            href="/docs" 
+            className={`hidden text-xs font-semibold sm:inline ${pathname === "/docs" ? "text-white" : "text-zinc-300 hover:text-white"}`}
+          >
+            Docs
+          </Link>
 
           <Link
             href="/dashboard"
@@ -134,6 +140,7 @@ export default function HowItWorksPage() {
             <Link href="/dashboard/startups" className="hover:text-white">Startups</Link>
             <Link href="/dashboard/investors" className="hover:text-white">Investors</Link>
             <Link href="/dashboard/admin/rounds/create" className="hover:text-white">Create Round</Link>
+            <Link href="/docs" className="hover:text-white">Docs</Link>
           </div>
           <div className="text-xs">2026 CodeQuity Launchpad</div>
         </div>
