@@ -109,14 +109,10 @@ Next.js Launchpad
       "The UI makes Casper visible. A judge should not need to inspect logs to know which action touched the chain.",
     ],
     bullets: [
-      "Deposit deploy hash",
-      "Release deploy hash",
-      "Escrow wallet or contract reference",
-      `Escrow account ${CODEQUITY_ESCROW_PUBLIC_KEY}`,
-      `Escrow contract ${ESCROW_CONTRACT_UREF}`,
-      `SAFE contract ${SAFE_CONTRACT_UREF}`,
-      "Casper chain name",
-      "Startup recipient public key",
+      "Deposit deploy hashes link to CSPR.live",
+      "Release deploy hashes are shown per milestone",
+      "Escrow mode is explicit: wallet or contract",
+      "Startup recipient public key stays visible before signing",
     ],
   },
   {
@@ -224,6 +220,37 @@ const casperReferences = [
     label: "SAFE contract",
     value: SAFE_CONTRACT_UREF,
     href: csprContractHref(SAFE_CONTRACT_UREF),
+  },
+];
+
+const casperProofCards = [
+  {
+    label: "Escrow account",
+    value: CODEQUITY_ESCROW_PUBLIC_KEY,
+    shortValue: shortRef(CODEQUITY_ESCROW_PUBLIC_KEY),
+    href: csprAccountHref(CODEQUITY_ESCROW_PUBLIC_KEY),
+    note: "Wallet escrow recipient",
+  },
+  {
+    label: "Demo account",
+    value: DEMO_PROTOCOL_PUBLIC_KEY,
+    shortValue: shortRef(DEMO_PROTOCOL_PUBLIC_KEY),
+    href: csprAccountHref(DEMO_PROTOCOL_PUBLIC_KEY),
+    note: "Seeded protocol/startup key",
+  },
+  {
+    label: "Escrow contract",
+    value: ESCROW_CONTRACT_UREF,
+    shortValue: shortRef(ESCROW_CONTRACT_UREF),
+    href: csprContractHref(ESCROW_CONTRACT_UREF),
+    note: "Score-gated release contract",
+  },
+  {
+    label: "SAFE contract",
+    value: SAFE_CONTRACT_UREF,
+    shortValue: shortRef(SAFE_CONTRACT_UREF),
+    href: csprContractHref(SAFE_CONTRACT_UREF),
+    note: "Funding agreement token rail",
   },
 ];
 
@@ -357,13 +384,15 @@ export default function DocumentationPage() {
                   {section.bullets && (
                     <div className="mt-6 grid gap-3 sm:grid-cols-2">
                       {section.bullets.map((bullet) => (
-                        <div key={bullet} className="flex gap-3 rounded-sm border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300">
+                        <div key={bullet} className="flex min-w-0 items-start gap-3 rounded-sm border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-zinc-300 transition-colors hover:border-[#45f798]/30 hover:bg-[#45f798]/[0.06]">
                           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#45f798]" />
-                          <span>{bullet}</span>
+                          <span className="min-w-0 break-words">{bullet}</span>
                         </div>
                       ))}
                     </div>
                   )}
+
+                  {section.id === "casper" && <CasperProofSummary />}
 
                   {section.code && (
                     <pre className="mt-6 overflow-x-auto rounded-sm border border-white/10 bg-[#0b1110] p-5 text-sm leading-7 text-zinc-300">
@@ -385,7 +414,7 @@ export default function DocumentationPage() {
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-sm border border-white/10">
+              <div className="overflow-x-auto rounded-sm border border-white/10">
                 <table className="w-full min-w-[680px] text-left text-sm">
                   <thead className="bg-white/[0.04] text-xs uppercase tracking-[0.16em] text-zinc-500">
                     <tr>
@@ -461,4 +490,47 @@ export default function DocumentationPage() {
       </div>
     </main>
   );
+}
+
+function CasperProofSummary() {
+  return (
+    <div className="mt-6 overflow-hidden rounded-sm border border-white/10 bg-[#080d0c]">
+      <div className="border-b border-white/10 px-4 py-3">
+        <div className="text-[10px] font-black uppercase tracking-[0.22em] text-[#66f4ff]">Live Testnet References</div>
+        <p className="mt-1 text-sm text-zinc-500">
+          Shortened for readability. Each row opens the exact CSPR.live account or contract page.
+        </p>
+      </div>
+
+      <div className="grid gap-px bg-white/10 md:grid-cols-2">
+        {casperProofCards.map((item) => (
+          <a
+            key={item.label}
+            href={item.href}
+            target="_blank"
+            rel="noreferrer"
+            title={item.value}
+            className="group min-w-0 bg-[#070908] p-4 transition-colors hover:bg-[#0d1714]"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">{item.label}</div>
+                <div className="mt-2 truncate font-mono text-sm font-semibold text-zinc-100">{item.shortValue}</div>
+                <div className="mt-1 text-xs text-zinc-600">{item.note}</div>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-[#66f4ff]/30 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#66f4ff] transition-colors group-hover:bg-[#66f4ff]/10">
+                Open
+                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function shortRef(value: string) {
+  if (value.length <= 22) return value;
+  return `${value.slice(0, 10)}...${value.slice(-8)}`;
 }
