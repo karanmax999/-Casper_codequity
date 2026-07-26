@@ -214,18 +214,63 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#020504] px-5 py-24 md:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+        <section className="relative overflow-hidden border-y border-[#123626] bg-[#020504] px-5 py-24 md:px-8">
+          <div className="absolute inset-x-0 bottom-0 h-64 bg-[radial-gradient(circle_at_50%_100%,rgba(69,247,152,0.22),transparent_56%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:80px_80px] opacity-25" />
+
+          <div className="relative mx-auto max-w-7xl">
+            <div className="grid gap-8 border-b border-white/10 pb-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+              <div>
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.24em] text-[#45f798]">
+                  <Sparkles className="h-4 w-4" />
+                  Launchpad Operating System
+                </div>
+                <h2 className="font-space-grotesk mt-5 max-w-2xl text-4xl font-black leading-[1.05] tracking-tight text-white md:text-6xl">
+                  One rail.
+                  <br />
+                  Zero capital ambiguity.
+                </h2>
+              </div>
+              <div className="max-w-xl lg:justify-self-end">
+                <p className="text-sm leading-6 text-zinc-400 md:text-base md:leading-7">
+                  CodeQuity turns startup funding into a score-gated workflow: discover real builders, verify traction,
+                  escrow capital, and release money only when the milestone proof is visible.
+                </p>
+                <Link
+                  href="/dashboard"
+                  className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-white px-4 text-xs font-black text-black transition-colors hover:bg-[#45f798]"
+                >
+                  Explore launchpad
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {featureCards.map((feature, idx) => (
                 <div
                   key={feature.title}
-                  className={`group relative border border-white/10 bg-white/[0.03] p-8 transition-colors hover:bg-white/[0.05] ${idx === 1 || idx === 3 ? "md:translate-y-8" : ""
-                    }`}
+                  className="group relative min-h-[280px] overflow-hidden rounded-sm border border-white/10 bg-[#0A0F0C]/90 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.22)] transition-colors hover:border-[#45f798]/40 hover:bg-[#0D1510]"
                 >
-                  <feature.icon className="h-8 w-8 text-electric-blue transition-transform group-hover:scale-110" />
-                  <h2 className="font-space-grotesk mt-6 text-xl font-bold text-white">{feature.title}</h2>
-                  <p className="mt-3 leading-relaxed text-zinc-400">{feature.copy}</p>
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#45f798]/12 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="relative flex h-full flex-col">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-sm border border-white/12 bg-white/[0.04] text-white transition-colors group-hover:border-[#45f798]/35 group-hover:text-[#45f798]">
+                        <feature.icon className="h-6 w-6" />
+                      </div>
+                      <span className="font-mono text-sm font-black text-[#45f798]">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <div className="mt-auto pt-10">
+                      <h3 className="font-space-grotesk text-2xl font-black leading-tight text-white">
+                        {feature.title}
+                      </h3>
+                      <p className="mt-4 text-sm leading-6 text-zinc-400">
+                        {feature.copy}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
