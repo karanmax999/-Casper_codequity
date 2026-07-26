@@ -23,7 +23,7 @@ import { getSupabase } from "@/lib/supabase";
 import { isAdmin } from "@/lib/admin";
 
 function getActiveSection(pathname: string): string {
-  if (pathname.startsWith("/docs")) return "docs";
+  if (pathname.startsWith("/dashboard/learn")) return "learn";
   if (pathname.startsWith("/dashboard/profile")) return "profile";
   if (pathname.startsWith("/dashboard/admin/rounds/create")) return "create";
   if (pathname.startsWith("/dashboard/admin/investors")) return "admin-investors";
@@ -64,7 +64,7 @@ export function IconRail() {
     { id: "create", icon: SquarePlus, href: "/dashboard/admin/rounds/create", label: "Create Round" },
     { id: "transactions", icon: RadioTower, href: "/dashboard/transactions", label: "Transactions" },
     { id: "admin-investors", icon: Users, href: "/dashboard/admin/investors", label: "Investors" },
-    { id: "docs", icon: BookOpenText, href: "/docs", label: "Docs" },
+    { id: "learn", icon: BookOpenText, href: "/dashboard/learn", label: "Investor Hub" },
   ];
 
   const clientNavItems = [
@@ -73,7 +73,7 @@ export function IconRail() {
     { id: "investors", icon: Users, href: "/dashboard/investors", label: "Investor Pipeline" },
     { id: "watchlist", icon: Star, href: "/dashboard/watchlist", label: "Watchlist" },
     { id: "register", icon: PlusCircle, href: "/dashboard/register-protocol", label: "Register Protocol" },
-    { id: "docs", icon: BookOpenText, href: "/docs", label: "Docs" },
+    { id: "learn", icon: BookOpenText, href: "/dashboard/learn", label: "Investor Hub" },
   ];
 
   const currentNavItems = isUserAdmin ? adminNavItems : clientNavItems;
