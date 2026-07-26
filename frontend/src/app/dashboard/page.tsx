@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Database, RadioTower, ShieldCheck, WalletCards, Sparkles, CheckCircle2, Clock } from "lucide-react";
 import type { ComponentType } from "react";
 import { listLaunchpadRounds } from "@/lib/launchpad";
-import { RoundCard } from "@/components/launchpad/RoundCard";
+import { RoundDashboard } from "@/components/launchpad/RoundDashboard";
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
 import { cn } from "@/lib/utils";
@@ -23,54 +23,15 @@ export default async function Dashboard() {
 
   if (isUserAdmin) {
     const rounds = await listLaunchpadRounds();
-    const activeRounds = rounds.filter((round) => round.status === "active").length;
-    const releasedMilestones = rounds.reduce(
-      (count, round) => count + (round.milestones || []).filter((milestone) => milestone.released_at).length,
-      0,
-    );
-    const totalCapital = rounds.reduce((sum, round) => sum + Number(round.amount_cspr || 0), 0);
 
     return (
-      <div className="space-y-8 max-w-7xl mx-auto py-2">
-        <section className="border-b border-[#1F1F1F] pb-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#45f798]">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                CodeQuity x Casper [Admin Mode]
-              </div>
-              <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                Proof-of-traction funding rounds.
-              </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
-                Investor escrow releases tied to Codequity traction score milestones, prepared for Casper testnet settlement.
-              </p>
-            </div>
-            <Link
-              href="/dashboard/admin/rounds/create"
-              className="inline-flex h-10 items-center justify-center rounded-sm bg-[#45f798] px-5 text-xs font-bold text-black transition-colors hover:bg-[#63ffab]"
-            >
-              Create round
-            </Link>
-          </div>
-        </section>
-
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Stat label="Active rounds" value={String(activeRounds)} />
-          <Stat label="Milestones released" value={String(releasedMilestones)} />
-          <Stat label="Capital tracked" value={`${formatNumber(totalCapital)} CSPR`} />
-        </div>
-
-        {rounds.length > 0 ? (
-          <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-            {rounds.map((round) => (
-              <RoundCard key={round.id} round={round} />
-            ))}
-          </div>
-        ) : (
-          <EmptyLaunchpad />
-        )}
-      </div>
+      <RoundDashboard
+        rounds={rounds}
+        eyebrow="CodeQuity x Casper [Admin Mode]"
+        title="Proof-of-traction funding rounds"
+        description="Create, monitor, and evaluate milestone-gated funding rounds with Casper-backed settlement proof."
+        ctaLabel="Create new round"
+      />
     );
   }
 
@@ -79,32 +40,7 @@ export default async function Dashboard() {
     const myRounds = allRounds.filter(r => r.investor_id === myInvestor.id);
 
     return (
-      <div className="space-y-8 max-w-7xl mx-auto py-2">
-        <section className="border-b border-[#1F1F1F] pb-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#45f798]">
-                <Sparkles className="h-3.5 w-3.5" />
-                Investor Dashboard
-              </div>
-              <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                My Funding Rounds
-              </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
-                Monitor and manage your active allocations on Casper.
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/dashboard/admin/rounds/create"
-                className="inline-flex h-10 items-center justify-center rounded-sm bg-[#45f798] px-5 text-xs font-bold text-black transition-colors hover:bg-[#63ffab]"
-              >
-                Create new round
-              </Link>
-            </div>
-          </div>
-        </section>
-
+      <div className="space-y-5">
         {!myInvestor.wallet_pubkey && (
           <div className="rounded border border-orange-500/30 bg-orange-500/10 p-4 text-orange-400 flex items-center justify-between">
             <span className="text-sm font-medium">⚠️ You must add your Casper wallet public key before creating a round.</span>
@@ -112,24 +48,13 @@ export default async function Dashboard() {
           </div>
         )}
 
-        {myRounds.length > 0 ? (
-          <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-            {myRounds.map((round) => (
-              <RoundCard key={round.id} round={round} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-lg border border-[#1F1F1F] bg-[#0A0A0A] p-12 text-center">
-            <h3 className="text-lg font-bold text-white">No active rounds</h3>
-            <p className="mt-2 text-sm text-zinc-500">You haven't funded any protocols yet.</p>
-            <Link
-              href="/dashboard/admin/rounds/create"
-              className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-[#45f798] px-6 text-xs font-bold text-black hover:bg-[#63ffab] transition-all"
-            >
-              Fund a startup <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        )}
+        <RoundDashboard
+          rounds={myRounds}
+          eyebrow="Investor Dashboard"
+          title="My Funding Rounds"
+          description="Monitor and manage your active allocations, milestone progress, and Casper-backed release readiness."
+          ctaLabel="Create new round"
+        />
       </div>
     );
   }
