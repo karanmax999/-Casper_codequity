@@ -157,8 +157,8 @@ export default function LearnPage() {
         </div>
       </section>
 
-      <section className="grid items-start gap-6 border border-[#1F1F1F] bg-[#070907] p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,400px)]">
-        <div className="space-y-4">
+      <section className="grid items-start gap-6 overflow-hidden border border-[#1F1F1F] bg-[#070907] p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+        <div className="space-y-5">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#45f798]">
               <Users className="h-3.5 w-3.5" />
@@ -173,7 +173,7 @@ export default function LearnPage() {
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <AudienceCard
               icon={Landmark}
               label="For VCs"
@@ -197,7 +197,7 @@ export default function LearnPage() {
 
         <div className="w-full lg:justify-self-end">
           <div className="border border-white/10 bg-[#0A0A0A] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
-            <div className="mb-3 flex items-start justify-between gap-3 px-1">
+            <div className="mb-3 px-1">
               <div>
                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#45f798]">
                   <BookOpenText className="h-3.5 w-3.5" />
@@ -207,11 +207,8 @@ export default function LearnPage() {
                   A quick visual guide for funders reviewing the launchpad.
                 </p>
               </div>
-              <span className="shrink-0 border border-[#45f798]/30 bg-[#45f798]/10 px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#45f798]">
-                Loop
-              </span>
             </div>
-            <div className="relative mx-auto aspect-[9/16] w-full max-w-[300px] overflow-hidden border border-white/10 bg-black sm:max-w-[320px]">
+            <div className="relative mx-auto aspect-[9/16] w-full max-w-[260px] overflow-hidden border border-white/10 bg-black sm:max-w-[280px]">
               <video
                 src="/docs_Investor.mp4"
                 className="h-full w-full object-contain"
@@ -221,6 +218,11 @@ export default function LearnPage() {
                 playsInline
                 preload="metadata"
               />
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+              <VideoFact label="Mode" value="Loop" />
+              <VideoFact label="Frame" value="9:16" />
+              <VideoFact label="Use" value="Demo" />
             </div>
           </div>
         </div>
@@ -401,13 +403,29 @@ function AudienceCard({
   copy: string;
 }) {
   return (
-    <div className="group border border-[#1F1F1F] bg-[#0A0A0A] p-4 transition-colors hover:border-[#45f798]/35 hover:bg-[#0D110F] sm:p-5">
-      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
-        <Icon className="h-3.5 w-3.5 text-[#45f798]" />
-        {label}
+    <div className="group relative overflow-hidden border border-[#1F1F1F] bg-[#0A0A0A] p-4 transition-colors hover:border-[#45f798]/35 hover:bg-[#0D110F]">
+      <div className="absolute inset-y-0 left-0 w-px bg-[#45f798]/40" />
+      <div className="flex gap-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#45f798]/25 bg-[#45f798]/10 text-[#45f798] transition-colors group-hover:bg-[#45f798]/15">
+          <Icon className="h-4 w-4" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+            {label}
+          </div>
+          <h2 className="mt-2 text-base font-semibold tracking-tight text-white sm:text-lg">{title}</h2>
+          <p className="mt-1.5 text-xs leading-5 text-zinc-500">{copy}</p>
+        </div>
       </div>
-      <h2 className="mt-3 text-lg font-semibold tracking-tight text-white">{title}</h2>
-      <p className="mt-2 text-xs leading-5 text-zinc-500">{copy}</p>
+    </div>
+  );
+}
+
+function VideoFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-white/10 bg-white/[0.025] px-2 py-2">
+      <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-600">{label}</div>
+      <div className="mt-1 font-mono text-[10px] font-bold text-zinc-300">{value}</div>
     </div>
   );
 }
