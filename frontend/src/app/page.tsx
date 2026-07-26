@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { InvestorSection } from "@/components/landing/InvestorSection";
 import { IntelligenceLayer } from "@/components/landing/IntelligenceLayer";
@@ -11,12 +12,14 @@ import {
   Database,
   FileCheck2,
   GitBranch,
+  Menu,
   Network,
   RadioTower,
   Scale,
   ShieldCheck,
   Sparkles,
   TerminalSquare,
+  X,
   Zap,
 } from "lucide-react";
 
@@ -50,32 +53,111 @@ const featureCards = [
   },
 ];
 
+const navItems = [
+  { href: "/how-it-works", label: "How It Works" },
+  { href: "/docs", label: "Docs" },
+  { href: "/dashboard/startups", label: "Startups" },
+];
+
 export default function LandingPage() {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#020504] text-white">
-      <header className="fixed top-0 left-0 right-0 z-50 mx-auto flex w-full items-center justify-between px-5 py-5 md:px-8 border-b border-white/10 bg-[#020504]/80 backdrop-blur-md">
-        <Link href="/" className="flex items-center gap-3">
-          <TerminalSquare className="h-7 w-7 text-[#45f798]" />
-          <div className="leading-none">
-            <div className="text-sm font-black uppercase tracking-[0.16em] text-[#45f798]">CodeQuity</div>
-            <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.28em] text-zinc-500">Casper Launchpad</div>
-          </div>
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link href="/how-it-works" className="hidden text-xs font-semibold text-zinc-300 hover:text-white sm:inline">
-            How It Works
-          </Link>
-          <Link href="/docs" className="hidden text-xs font-semibold text-zinc-300 hover:text-white sm:inline">
-            Docs
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#050806]/88 shadow-[0_16px_44px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+        <div className="mx-auto flex h-[72px] w-full max-w-7xl items-center justify-between px-4 md:px-8">
+          <Link href="/" className="group flex min-w-0 items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-[#45f798]/45 bg-[#45f798]/10 text-[#45f798] shadow-[0_0_24px_rgba(69,247,152,0.12)] transition-colors group-hover:bg-[#45f798]/15">
+              <TerminalSquare className="h-5 w-5" />
+            </span>
+            <span className="min-w-0 leading-none">
+              <span className="block truncate text-sm font-black uppercase tracking-[0.18em] text-[#45f798]">CodeQuity</span>
+              <span className="mt-1.5 block truncate text-[10px] font-bold uppercase tracking-[0.26em] text-zinc-500">
+                Casper Launchpad
+              </span>
+            </span>
           </Link>
 
-          <Link
-            href="/dashboard"
-            className="inline-flex h-9 items-center justify-center rounded-sm bg-[#45f798] px-4 text-xs font-black text-black transition-colors hover:bg-[#63ffab]"
-          >
-            Launch App
-          </Link>
+          <nav className="hidden items-center gap-1 rounded-sm border border-white/10 bg-white/[0.035] p-1 md:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-sm px-4 py-2 text-xs font-bold text-zinc-300 transition-colors hover:bg-white/[0.07] hover:text-white"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="hidden items-center gap-2 md:flex">
+            <Link
+              href="/dashboard/admin/rounds/create"
+              className="inline-flex h-10 items-center justify-center rounded-sm border border-[#45f798]/35 px-4 text-xs font-black text-[#45f798] transition-colors hover:bg-[#45f798]/10 hover:text-[#78ffb8]"
+            >
+              Create Round
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-[#45f798] px-5 text-xs font-black text-black transition-colors hover:bg-[#63ffab]"
+            >
+              Launch App
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2 md:hidden">
+            <Link
+              href="/dashboard"
+              className="inline-flex h-10 items-center justify-center rounded-sm bg-[#45f798] px-4 text-xs font-black text-black transition-colors hover:bg-[#63ffab] max-[360px]:hidden"
+            >
+              Launch
+            </Link>
+            <button
+              type="button"
+              aria-label="Toggle navigation"
+              aria-expanded={mobileNavOpen}
+              onClick={() => setMobileNavOpen((open) => !open)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 bg-white/[0.04] text-white transition-colors hover:bg-white/[0.08]"
+            >
+              {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
+
+        {mobileNavOpen ? (
+          <div className="border-t border-white/10 bg-[#050806]/96 px-4 py-4 shadow-[0_24px_50px_rgba(0,0,0,0.4)] backdrop-blur-xl md:hidden">
+            <nav className="mx-auto flex max-w-7xl flex-col gap-2">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="rounded-sm border border-white/10 bg-white/[0.035] px-4 py-3 text-sm font-bold text-zinc-200 transition-colors hover:bg-white/[0.08] hover:text-white"
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <Link
+                  href="/dashboard/admin/rounds/create"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="inline-flex h-11 items-center justify-center rounded-sm border border-[#45f798]/35 px-3 text-xs font-black text-[#45f798] transition-colors hover:bg-[#45f798]/10"
+                >
+                  Create Round
+                </Link>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-[#45f798] px-3 text-xs font-black text-black transition-colors hover:bg-[#63ffab]"
+                >
+                  Launch App
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </nav>
+          </div>
+        ) : null}
       </header>
 
       <ScrollExpandMedia
